@@ -1,5 +1,5 @@
 @import url(//fonts.googleapis.com/css?family=Ubuntu:500&subset=latin,latin-ext);
-@import url(//fonts.googleapis.com/css2?family=Jua&family=Nunito&display=swap);
+@import url(fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nunito&display=swap);
 @import url(syntax/monokai.css);
 
 :root {
@@ -29,8 +29,7 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
-  --font-family-sans-serif: "Roboto", "Nanum Gothic";
-  --font-family-serif: "Nanum Myeongjo";
+  --font-family-sans-serif: 'Nunito', 'Gowun Dodum', 'Ubuntu';
 }
 
 * {
@@ -49,7 +48,7 @@ body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: 'Jua', 'Nunito', sans-serif;
+	font-family: 'Nunito', 'Gowun Dodum', sans-serif;
 	color: #2c3e50;
 }
 
@@ -73,7 +72,7 @@ pre {
 }
 
 code {
-	font-family: "Menlo", "Consolas", monospace;
+	font-family: 'Nunito', 'Gowun Dodum', sans-serif;
 	font-size: 0.8em;
 	margin: 0px;
 }
@@ -112,14 +111,15 @@ code {
 }
 
 .sidebar-brand > a {
-	font-size: 300%;
-	font-family: 'Gelasio';
+	
+	font-size: 2em;
+	font-family: 'Ubuntu';
 	color: #fff;
 }
 
 .lead {
-	font-size: 120%;
-	color: #aaa;
+	font-size: 110%;
+	color: rgb(90, 110, 110);
 }
 
 .sidebar-header {
@@ -131,18 +131,17 @@ code {
 }
 
 .nav-title {
-	font-size: 100%;
-	font-family: "Nunito", sans-serif;
-	text-transform: uppercase;
+	
+	font-size: 1.0em;
+	font-family: "Ubuntu";
 	border-bottom: 1px solid gray;
 	margin-bottom: 5px;
 }
 
 a.nav-item {
-	font-size: 120%;
-	font-family: "Nunito", sans-serif;
-	text-transform: capitalize;
-	color: #aaa;
+	font-size: 1.2em;
+	font-family: "Nunito";
+	color: rgb(90, 110, 110);
 }
 
 a.nav-item:hover { color: #777; }
@@ -232,7 +231,7 @@ article h3,
 article h4,
 article h5,
 article h6 {
-	font-family: "Jua", "Nunito";
+	font-family: 'Nunito', 'Gowun Dodum';
 	color: #333;
   	margin-bottom: 0;
 }
@@ -264,6 +263,8 @@ header.home {
 .post-title {
 	font-size: 1.5em;
 	color: #111;
+	
+	font-family: Ubuntu;
 	font-weight: bold;
 }
 
@@ -295,7 +296,7 @@ footer {
 }
 
 .sidebar-footer a {
-	color: #ccc;
+	color: rgb(124, 124, 124);
 }
 
 

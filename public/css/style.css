@@ -48,7 +48,7 @@ body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: 'Nunito', 'Gowun Dodum', sans-serif;
+	font-family: 'Nunito', 'Gowun Dodum';
 	color: #2c3e50;
 }
 
@@ -72,7 +72,7 @@ pre {
 }
 
 code {
-	font-family: 'Nunito', 'Gowun Dodum', sans-serif;
+	font-family: 'Nunito', 'Gowun Dodum';
 	font-size: 0.8em;
 	margin: 0px;
 }

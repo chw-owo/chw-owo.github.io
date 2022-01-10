@@ -1,12 +1,9 @@
 ---
 layout: post
 title: markdown 구경하기
-date: 2022-01-10 13:30
+date: 2022-01-10 13:00
 toc: true
 toc_sticky: true
-tags: -
-- 항해99
-- 미니프로젝트
 ---
 
 Hello!

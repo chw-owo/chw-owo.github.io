@@ -333,6 +333,16 @@ _______________________
 3. 나머지 유저들은 Find Room 버튼을 눌러 해당방을 찾아 접속합니다. (방이 하나라면 가장 상단)
 4. 방을 개설한 유저만 Start Room 버튼이 활성화됩니다. 해당 버튼이 누르면 다같이 GameScene으로 넘어가고 게임이 시작됩니다.
 
+### Role
+______________________
+
+물리 엔진 제작: 조혜원 https://github.com/chw-owo, 정호석 https://github.com/hoseok4399
+
+포톤, 네트워크: 신지훈 https://github.com/jihun0916
+
+캐릭터, 아이템, UI 등의 게임 요소: 최혜진 https://github.com/CHOINEON  
+
+
 ### Git URL
 _______________________
 

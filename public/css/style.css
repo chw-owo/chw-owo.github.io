@@ -97,7 +97,8 @@ code {
 	flex: 0 0 220px;
 	padding: 15px;
 	z-index: 1;
-	background-color: rgb(150, 200, 200);
+	background-image: url("../img/sunset.jpg");
+	/* background-color: rgb(150, 200, 200); */
 	color: #fff;
 }
 

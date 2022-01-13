@@ -1,58 +1,62 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-#
-# If you need help with YAML syntax, here are some quick references for you: 
-# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
-# https://learnxinyminutes.com/docs/yaml/
-#
-# Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
+# Setup
+title: chw-owo
+description: 차근차근 즐겁게
+url: https://chw-owo.github.io
+avatar: /avatar.jpeg
+paginate: 10
+permalink: pretty
+cover_image: /bg.jpeg
 
-title: Cho-owo
-email: gpdnjs2116@gmail.com
-description: >- # this means to ignore newlines until "baseurl:"
-  Cho's studyroom
-# baseurl: "/" # the subpath of your site, e.g. /blog
-# url: "http://ejjoo.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-github_username: cho-owo
-highlighter: rouge
-svg:
-  optimize: true
-# Build settings
-# theme: minima
-highlighter-theme: monokai
-date_format: "%Y-%M-%D"
+# Gems
 plugins:
+  - jekyll-gist
+  - jekyll-paginate
+  - jekyll-seo-tag
   - jekyll-feed
-category_dir: category/
-tag_dir: tag/
+  - jekyll-sitemap
+  - jekyll-remote-theme
 
-# Exclude from processing.
-# The following items will not be processed, by default.
-# Any item listed under the `exclude:` key here will be automatically added to
-# the internal "default list".
-#
-# Excluded items can be processed by explicitly listing the directories or
-# their entries' file path in the `include:` list.
-#
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+remote_theme: vszhub/not-pure-poole
+
+# Optimize Jekyll
+exclude:
+  - .editorconfig
+  - .git
+  - .jekyll-cache
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE.md
+  - README.md
+  - scripts/
+  - not-pure-poole.gemspec
+
+# Optimize Jekyl SEO Tag
+twitter:
+  username: chw-owo
+  card: summary
+logo: logo.png
+social:
+  name: Hyewon Cho
+  links:
+    - https://twitter.com/chw_owo
+    - https://github.com/chw-owo
+google_site_verification: xxxxx
+lang: en
+
+sass:
+  sass_dir: _sass
+  style: :compressed
+
+# Options
+
+# Replace this value and uncomment to enable Google Analytics tracking
+# google_analytics: UA-000000-0
+
+# Replace this value and uncomment to enable Disqus
+# disqus: xxxxxx
+
+# Specify the author for blog posts
+author:
+  name: Hyewon Cho
+  url: https://github.com/chw-owo
+  email: gpdnjs2116@gmail.com

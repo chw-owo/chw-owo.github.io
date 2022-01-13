@@ -1,0 +1,9 @@
+- title: Email
+  url: mailto://gpdnjs2116@gmail.com
+  icon: fas fa-envelope
+- title: Twitter
+  url: https://twitter.com/chw_owo
+  icon: fab fa-twitter
+- title: GitHub
+  url: https://github.com/chw-owo
+  icon: fab fa-github

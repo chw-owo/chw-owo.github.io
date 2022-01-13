@@ -3,7 +3,7 @@ layout: post
 title: ChildCare 품앗이 매칭 사이트 
 date: 2022-01-10 13:30
 categories: Mini_Project
-tags: 미니프로젝트, 웹기초, CRUD, Flask, Jinja2, JWT, mongoDB
+tags: 미니프로젝트, CRUD, Flask, Jinja2, JWT, mongoDB
 toc: true
 toc_sticky: true
 ---

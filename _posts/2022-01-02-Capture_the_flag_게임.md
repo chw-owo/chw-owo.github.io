@@ -3,7 +3,7 @@ layout: post
 title: Capture the flag 게임
 date: 2022-01-02 13:30
 categories: Project
-tags: 프로젝트, 게임제작, Unity3D, 물리엔진, Photon, blender, C#, CTF게임
+tags: 프로젝트, Unity3D, 물리엔진, Photon
 toc: true
 toc_sticky: true
 ---

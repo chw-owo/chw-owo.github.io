@@ -8,9 +8,6 @@ toc: true
 toc_sticky: true
 ---
 
-# ChildCare
-육아 품앗이 매칭 플랫폼 제작 토이 프로젝트
-
 [![ChildCare](https://user-images.githubusercontent.com/96677719/149271865-e6e5d7e5-b8ef-4ad1-8428-b52c5c5f65f7.png)](https://youtu.be/aFWosYimem0) 
 
  
@@ -19,13 +16,14 @@ toc_sticky: true
 
 -------------
 ## 1. 기획의도
-  - 육아와 일을 병행하는 것에 힘겨움을 겪는 사람들을 위해 비슷한 지역 사람들끼리 서로 육아품앗이를 할 수 있도록 도와주는 미니 프로젝트
+
+육아와 일을 병행하는 것에 힘겨움을 겪는 사람들을 위해 비슷한 지역 사람들끼리 서로 육아품앗이를 할 수 있도록 도와주는 미니 프로젝트
+
 -------------
 ## 2. 기능 및 구성
-  - ### 기본 기능
-      + 회원가입, 로그인 (github.com/JaeGyoon)
-      + 메인 페이지, 모집글 올리기, 수정, 삭제 (github.com/chw-owo)
-      + 신청하기, 인원 마감, 신청 취소 (github.com/skekq123)
+  + 회원가입, 로그인 (github.com/JaeGyoon)
+  + 메인 페이지, 모집글 올리기, 수정, 삭제 (github.com/chw-owo)
+  + 신청하기, 인원 마감, 신청 취소 (github.com/skekq123)
 
 -------------
 ## 3. 기술 스택

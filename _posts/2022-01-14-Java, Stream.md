@@ -36,7 +36,7 @@ list.stream().filter(t->t.length()>5)
 ```
 요소를 특정 조건에 따라 걸러냄, 리턴, print 할 때는 위와 동일
 
-# 3. stream.filter()
+# 3. stream.sorted()
 
 ```java
 list.stream().sorted()

@@ -9,7 +9,7 @@ toc_sticky: true
 ---
 배열의 원소를 가공할 때 다음과 같이 사용할 수 있다.
 
-1. stream.map()
+# 1. stream.map()
 
 예시
 ```java
@@ -28,7 +28,7 @@ list.stream().map(String::toUpperCase).forEach(s -> System.out.println(s));
 forEach를 이용해 결과를 print할 수 있다.
 ```
 
-2. stream.filter()
+# 2. stream.filter()
 
 예시
 ```java
@@ -36,7 +36,7 @@ list.stream().filter(t->t.length()>5)
 ```
 요소를 특정 조건에 따라 걸러냄, 리턴, print 할 때는 위와 동일
 
-3. stream.filter()
+# 3. stream.filter()
 
 ```java
 list.stream().sorted()

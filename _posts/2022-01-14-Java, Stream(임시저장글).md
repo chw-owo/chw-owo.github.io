@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Java, Stream
+title: Java, Stream(임시저장글)
 date: 2022-01-15 14:00
 categories: Java
 tags: 자바

@@ -109,8 +109,6 @@ HyperText 방식으로 텍스트, 그림, 소리, 영상 등의 멀티미디어 
 
 자원의 representation에 의한 상태 전달
 
-= 웹 상에 존재하는 모든 리소스에 고유의 URI를 부여하고, HTTP Method 4개 (POST, PUT, UPDATE, DELETE)를 이용해 리소스의 상태에 CRUD 명령을 적용하는 것
-
 ![image](https://user-images.githubusercontent.com/96677719/149866039-aba9369d-493a-4804-862b-8efa179d1468.png)
 
 

@@ -1,8 +1,8 @@
 ---
 layout: post
-title: HashMap(임시저장글)
+title: Java, HashMap
 date: 2022-01-14 19:00
-categories: Data_Structure
+categories: Java
 tags: 자료구조, Java
 toc: true
 toc_sticky: true

@@ -1,14 +1,12 @@
 ---
 layout: post
-title: Spring, Controller와 RestController
+title: RestController와 ModelAndView
 date: 2022-01-19 19:00
 categories: Java
 tags: Java
 toc: true
 toc_sticky: true
 ---
-
-### 📌Controller
 
 ### 📌Rest
 

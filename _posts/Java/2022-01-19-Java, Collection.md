@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Java, Collection(임시저장글)
-date: 2022-01-20 01:00
+title: Java, Collection
+date: 2022-01-25 01:00
 categories: Java
 tags: 자바
 toc: true
@@ -20,6 +20,8 @@ Collection은 동적인 자료형이기 때문에 참조 자료형만 넣을 수
 
 ## **📌 Collection의 Interface**
 
+![image](https://user-images.githubusercontent.com/96677719/150907794-8feb32cd-737a-4d6f-9fea-f5bdb52163e9.png)
+
 기본 인터페이스로는 List, Set, Map이 있다. 
 
 List: 중복을 허용하고 순서가 유지되는 데이터 집합 ArrayList, LinkedList, Vector, Stack
@@ -27,3 +29,9 @@ List: 중복을 허용하고 순서가 유지되는 데이터 집합 ArrayList, 
 Set: 중복을 허용하지 않는 집합으로 순서가 유지되지 않는다,  HashSet, TreeSet
 
 Map:key-value 쌍으로 이루어진 데이터의 집합으로 순서가 유지되지 않는다. HashMap, TreeMap, HashTable, Properties
+
+출처:
+
+https://gangnam-americano.tistory.com/41
+
+최주호 데어프로그래밍 자바

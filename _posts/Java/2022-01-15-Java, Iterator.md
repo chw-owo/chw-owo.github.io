@@ -33,6 +33,6 @@ iter.remove(): iterator에서 next() 시에 가져왔던 값을 컬렉션에서 
 자바에서는 코드의 명확성을 위해 되도록 enhanced for을 권장한다. 
 
 
-### 출처
+###### 출처
 
 https://wakestand.tistory.com/247

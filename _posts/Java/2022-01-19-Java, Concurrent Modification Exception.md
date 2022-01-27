@@ -13,7 +13,7 @@ toc_sticky: true
 
 📌
 
-## Iterator을 사용하여 순회할 때마다 iterator.remove를 해주는 방법
+#### Iterator을 사용하여 순회할 때마다 iterator.remove를 해주는 방법
 
 before
 
@@ -49,7 +49,7 @@ for (Iterator<String> iterator = list.iterator(); iterator.hasNext(); ) {
 
 📌
 
-## 삭제해야 할 리스트(여기서 remove)를 따로 만들고 그 리스트(remove)를 for문에 넣어서 기존 list를 제거하는 방식
+#### 삭제해야 할 리스트(여기서 remove)를 따로 만들고 그 리스트(remove)를 for문에 넣어서 기존 list를 제거하는 방식
 
 ```java
 ArrayList<String> list = new ArrayList<String>();
@@ -65,7 +65,7 @@ for (String name : Remove)
 
 📌
 
-## 원칙적으로 for문 안의 자료가 remove되는 걸 막는 클래스를 사용하는 방법
+#### 원칙적으로 for문 안의 자료가 remove되는 걸 막는 클래스를 사용하는 방법
 
 ```java
 List<Integer> list = new CopyOnWriteArrayList<>();

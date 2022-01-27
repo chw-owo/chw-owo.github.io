@@ -14,45 +14,42 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
 }
 
+
 h1 {
-  font-size: 1.2rem;
+  font-size: 2rem;
 }
 
 h2 {
-  margin-bottom: 2rem;
-  font-size: 1em;
+  margin-top: 2rem;
+  font-size: 1.5rem;
 }
 
 h3 {
   margin-top: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
 }
 
 h4 {
   margin-top: 1rem;
-  font-size: 0.8rem;
+  font-size: 1.12rem;
 }
 
 h5 {
   margin-top: 1rem;
-  font-size: 0.7;
+  font-size: .83rem;
 }
 
 h6 {
   margin-top: 1rem;
-  font-size: 0.6rem;
-
+  font-size: .75rem;
 }
 
-
 p {
-  font-size: 0.95rem;
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   -webkit-hyphens: auto;
       -ms-hyphens: auto;
           hyphens: auto;
-
 }
 
 ul, ol, dl {
@@ -118,12 +115,7 @@ a[href^="#fn:"],
 a[href^="#fnref:"] {
   display: inline-block;
   margin-left: .1rem;
-  
-}
-
-a{
-  font-size: 1rem;
-
+  font-weight: bold;
 }
 
 // List of footnotes
@@ -131,13 +123,6 @@ a{
   margin-top: 2rem;
   font-size: 85%;
 }
-
-.footer {
-  margin-top: 2rem;
-  font-size: 80%;
-  color:gray;
-}
-
 
 // Custom type
 //
@@ -147,6 +132,7 @@ a{
   font-size: 1.25rem;
   font-weight: 300;
 }
+
 
 time {
   margin-top: 1rem;

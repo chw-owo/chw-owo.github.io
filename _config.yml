@@ -15,6 +15,7 @@ plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-remote-theme
+  - jekyll-toc
 
 remote_theme: vszhub/not-pure-poole
 
@@ -60,3 +61,14 @@ author:
   name: Hyewon Cho
   url: https://github.com/chw-owo
   email: gpdnjs2116@gmail.com
+
+toc: 
+  min_level: 1 
+  max_level: 6 
+  ordered_list: false 
+  no_toc_section_class: no_toc_section 
+  list_class: section-nav 
+  sublist_class: '' 
+  item_class: toc-entry 
+  item_prefix: toc-
+

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: DI, IoC, Bean
+title: Spring, DI, IoC, Bean
 date: 2022-01-30 19:00
 categories: Spring
 tags: Spring

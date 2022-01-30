@@ -3,7 +3,7 @@ layout: post
 title: DI, IoC, Bean
 date: 2022-01-30 19:00
 categories: Spring
-tags:Spring
+tags: Spring
 toc: true
 toc_sticky: true
 ---

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Spring, ORM
-date: 2022-01-06 19:00
+date: 2022-02-06 19:00
 categories: Spring
 tags: Spring
 toc: true

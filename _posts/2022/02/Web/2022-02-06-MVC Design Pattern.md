@@ -1,7 +1,7 @@
 ---
 layout: post
 title: MVC Design Pattern
-date: 2022-02-06 19:00
+date: 2022-02-05 12:00
 categories: Web
 tags: Web
 toc: true

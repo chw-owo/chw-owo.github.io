@@ -1,0 +1,13 @@
+---
+title: "Timeline"
+layout: archive
+permalink: /year-archive/
+author_profile: true
+---
+{% assign postsByMonth = site.posts | group_by_exp:"post", "post.date | date: '%M'"  %}
+{% for month in postsByMonth %}
+  <h2 id="{{ month.name | slugify }}" class="archive__subtitle">{{ month.name }}</h2>
+  {% for post in month.items %}
+    {% include archive-single.html %}
+  {% endfor %}
+{% endfor %}

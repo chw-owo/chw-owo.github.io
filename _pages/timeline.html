@@ -4,10 +4,10 @@ layout: archive
 permalink: /year-archive/
 author_profile: true
 ---
-{% assign postsByMonth = site.posts | group_by_exp:"post", "post.date | date: '%M'"  %}
-{% for month in postsByMonth %}
-  <h2 id="{{ month.name | slugify }}" class="archive__subtitle">{{ month.name }}</h2>
-  {% for post in month.items %}
+{% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'"  %}
+{% for year in postsByYear %}
+  <h2 id="{{ year.name | slugify }}" class="archive__subtitle">{{ year.name }}</h2>
+  {% for post in year.items %}
     {% include archive-single.html %}
   {% endfor %}
 {% endfor %}

@@ -6,7 +6,7 @@ toc: true
 toc_sticky: true
 ---
 
-## Capture the Flag!
+**Capture the Flag!**
 
 #### Main Concept
 _________________
@@ -19,11 +19,11 @@ _________________
 #### Physics Engine
 _____________________
 
-RigidBody의 사용을 최소화하고 중력, 마찰력, 수직항력, 충돌 처리등을 직접 구현하여 사용하였다. 
+RigidBody의 사용을 최소화하고 중력, 마찰력, 수직항력, 충돌 처리등을 구현하여 사용하였다. 
 
 ![physics_flowchart](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/physics_flowchart.png)
 
-###### 1. impulse
+**1. impulse**
 ```cs
 public void Setimpulse(Vector3 inputimpulse)
     {
@@ -43,7 +43,7 @@ public void Setimpulse(Vector3 inputimpulse)
 충격량 / 질량만큼 속도를 증가시킨 뒤 충격량을 초기화한다. 
 
 
-###### 2. normal force
+**2. normal force**
 
 ```cs
     Vector3 Getnormalforce()
@@ -75,7 +75,7 @@ if Raycast로 바닥면이 검출된다면:
 
 else 검출되지 않는다면: 수직 항력은 0
 
-###### 3. gravity force
+**3. gravity force**
 
 ```cs
     Vector3 Getgravityforce()
@@ -87,7 +87,7 @@ else 검출되지 않는다면: 수직 항력은 0
 중력힘 = 중력 가속도 * 질량, 아래로 작용하므로 절대값의 음수로 적용
 
 
-###### 4. friction force
+**4. friction force**
 
 ```cs    
 Vector3 Getfrictionforce()
@@ -110,7 +110,7 @@ if 속도가 일정 이상이고 바닥에 닿아있을 경우:
 마찰력 = 수직항력의 크기 * 마찰계수 * 속도의 방향, 속도와 반대방향으로 작용하므로 음수로 적용
 
 
-###### 5. friction direction
+**5. friction direction**
 
 ```cs
    Vector3 Getfrictiondirectionvector()
@@ -157,7 +157,7 @@ if 속도가 일정 이상이고 바닥에 닿아있을 경우:
 위에서 구한 각도와 수직항력을 곱한 뒤 정규화하여 마찰 방향 벡터를 구하고, 만약 마찰 방향 벡터가 진행 앞쪽이라면 방향을 반대로 바꾸어준다.
 
 
-###### 6. Collider
+**6. Collider**
 
 ```cs
     void Planecheck()
@@ -250,17 +250,17 @@ Photon PUN2 와  UI들을 이용해서 사용자들이 방을 개설하고 각�
 
 #### Asset Modeling
 _______________________
-###### 1. Charactor (use blender)
+**1. Charactor (use blender)**
 <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch1.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch2.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch3.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch4.png" width="100" height="100"/> 
 
 ![ch_ex1](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch_ex1.png) ![ch_ex2](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/ch_ex2.png)   
 
-###### 2. bullet 
+**2. bullet**
 <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bullet1.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bullet2.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bullet3.png" width="100" height="100"/> <img src="https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bullet4.png" width="100" height="100"/> 
 
 서로 다른 피격 정도, 속도, 거리를 가진 탄알
 
-###### 3. Map
+**3. Map**
 전체 배경
 
 ![Backgroung_Zoomout](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bg_zoomout.png)
@@ -278,7 +278,7 @@ _______________________
 벽과 천장이 탄알을 막아주는 리스폰 존
 ![Backgroung_respawn](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/bg_respawn.png)
 
-###### 4. UI
+**4. UI**
 접속한 유저들의 위치가 나타나는 미니맵. Player의 팀을 구별한 후 x, z 좌표값을 받아와 전체 맵과의 비율을 계산한 뒤 UI에 실시간 투영한다. 
 
 ![minimap](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/minimap.png)
@@ -299,7 +299,7 @@ _______________________
 
 ![cooltime](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/cooltime.png)
 
-###### Game Clips
+#### Game Clips
 _______________________
 
 Move / Jump
@@ -323,15 +323,14 @@ Change Gun
 ![change_bullet](https://raw.githubusercontent.com/chw-owo/capture-the-flag/main/img/change_bullet.gif)
 
 
-###### How to execute
+#### How to execute
 _______________________
-1. CTF_GraphicsProject 내부 Build 폴더에 있는 CTF_Project.EXE 파일을 실행시켜주세요
-멀티플레이를 진행 할 경우, 플레이어들이 같은 네트워크망을 사용하고 있어야 합니다.
+1. CTF_GraphicsProject 내부 Build 폴더에 있는 CTF_Project.EXE 파일을 실행시켜주세요. 멀티플레이를 진행 할 경우, 플레이어들이 같은 네트워크망을 사용하고 있어야 합니다.
 2. 각자 원하는 닉네임을 하단에 기입하고 Master가 될 사람이 Create Room 버튼을 이용하여 방을 개설합니다.
 3. 나머지 유저들은 Find Room 버튼을 눌러 해당방을 찾아 접속합니다. (방이 하나라면 가장 상단)
 4. 방을 개설한 유저만 Start Room 버튼이 활성화됩니다. 해당 버튼이 누르면 다같이 GameScene으로 넘어가고 게임이 시작됩니다.
 
-###### Role
+#### Role
 ______________________
 
 물리 엔진 제작: 조혜원 https://github.com/chw-owo, 정호석 https://github.com/hoseok4399
@@ -341,12 +340,12 @@ ______________________
 캐릭터, 아이템, UI 등의 게임 요소: 최혜진 https://github.com/CHOINEON  
 
 
-###### Git URL
+#### Git URL
 _______________________
 
 https://github.com/chw-owo/capture-the-flag
 
-###### Reference
+#### Reference
 _______________________
 1. https://youtube.com/zPZK7C5_BQo
 2. https://youtube.com/watch?v=cErQMNZkN8Y&t=592s

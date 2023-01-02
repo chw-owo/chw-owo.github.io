@@ -1,5 +1,5 @@
 ---
-title: "Computer Structure"
+title: "ComputerStructure"
 layout: archive
 permalink: categories/ComputerStructure
 author_profile: true

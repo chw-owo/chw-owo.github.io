@@ -1,5 +1,5 @@
 ---
-title: "Coding Test"
+title: "CodingTest"
 layout: archive
 permalink: categories/CodingTest
 author_profile: true

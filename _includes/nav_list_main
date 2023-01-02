@@ -25,8 +25,8 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
-                    {% if category[0] == "Computer_Structure" %}
-                        <li><a href="/categories/Computer_Structure" class="">Computer Structure ({{category[1].size}})</a></li>
+                    {% if category[0] == "ComputerStructure" %}
+                        <li><a href="/categories/ComputerStructure" class="">Computer Structure ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -113,7 +113,7 @@
         <span class="nav__sub-title">Coding Test</span>
             <ul>
                 {% for category in site.categories %}
-                    {% if category[0] == "Coding_Test" %}
+                    {% if category[0] == "CodingTest" %}
                         <li><a href="/categories/CodingTest" class="">Coding Test ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}

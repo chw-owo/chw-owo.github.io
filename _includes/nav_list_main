@@ -26,7 +26,7 @@
             <ul>
                 {% for category in site.categories %}
                     {% if category[0] == "ComputerStructure" %}
-                        <li><a href="/categories/ComputerStructure" class="">Computer Structure ({{category[1].size}})</a></li>
+                        <li><a href="/categories/ComputerStructure" class="">ComputerStructure ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -110,11 +110,11 @@
                 {% endfor %}
             </ul>
 
-        <span class="nav__sub-title">Coding Test</span>
+        <span class="nav__sub-title">CodingTest</span>
             <ul>
                 {% for category in site.categories %}
                     {% if category[0] == "CodingTest" %}
-                        <li><a href="/categories/CodingTest" class="">Coding Test ({{category[1].size}})</a></li>
+                        <li><a href="/categories/CodingTest" class="">CodingTest ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

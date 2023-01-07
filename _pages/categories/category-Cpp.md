@@ -1,5 +1,5 @@
 ---
-title: "C++ 프로그래밍"
+title: "C++"
 layout: archive
 permalink: categories/C++
 author_profile: true

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Review 02) C++ 기초 (1)
+title: Procademy, Review 03) C++ 기초 (1)
 categories: ProcademyReview
 tags: 
 toc: true

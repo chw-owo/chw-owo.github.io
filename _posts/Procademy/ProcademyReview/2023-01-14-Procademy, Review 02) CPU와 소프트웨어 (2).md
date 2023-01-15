@@ -124,9 +124,9 @@ lea에 한해서는 위의 두가지 경우가 동일하게 동작한다. lea, l
 
 그 외에 간단한 문법은 아래 포스트에서 참고할 수 있다. 
 
-[어셈블리어 기초 1) 레지스터와 변수](https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-1\)-%EB%A0%88%EC%A7%80%EC%8A%A4%ED%84%B0%EC%99%80-%EB%B3%80%EC%88%98/)
+[어셈블리어 기초 1) 레지스터와 변수](https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-1\)\-%EB%A0%88%EC%A7%80%EC%8A%A4%ED%84%B0%EC%99%80-%EB%B3%80%EC%88%98/)
 
-[어셈블리어 기초 2) 기본 명령어](https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-2\)-%EA%B8%B0%EB%B3%B8-%EB%AA%85%EB%A0%B9%EC%96%B4/)
+[어셈블리어 기초 2) 기본 명령어](https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-2\)\-%EA%B8%B0%EB%B3%B8-%EB%AA%85%EB%A0%B9%EC%96%B4/)
 
 
 ## **3. 함수가 시작될 때 일어나는 일**

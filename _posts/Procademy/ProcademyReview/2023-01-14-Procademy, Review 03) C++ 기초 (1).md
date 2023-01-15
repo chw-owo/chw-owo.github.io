@@ -332,6 +332,6 @@ shift 연산자 우항에 오는 건 자동으로 unsigned 취급한다. 만약 
 
 <br/>
 
-[1]:https://chw-owo.github.io/cpp/C++,-%EC%9E%90%EB%A3%8C%ED%98%95-1\)-%EA%B8%B0%EB%B3%B8-%EC%9E%90%EB%A3%8C%ED%98%95/ 
+[1]:https://chw-owo.github.io/cpp/C++,-%EC%9E%90%EB%A3%8C%ED%98%95-1)-%EA%B8%B0%EB%B3%B8-%EC%9E%90%EB%A3%8C%ED%98%95/ 
 
-[2]:https://chw-owo.github.io/cpp/C++,-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-2\)-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5%EC%9D%98-%ED%8A%B9%EC%A7%95%EA%B3%BC-Class-%EC%8B%AC%ED%99%94/ 
+[2]:https://chw-owo.github.io/cpp/C++,-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-2)-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5%EC%9D%98-%ED%8A%B9%EC%A7%95%EA%B3%BC-Class-%EC%8B%AC%ED%99%94/ 

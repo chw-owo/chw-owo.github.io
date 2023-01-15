@@ -324,6 +324,6 @@ return 값을 전달할 때 eax 를 사용하기 때문에 eax를 0으로 돌려
 
 <br/>
 
-[1]:https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-1\)-%EB%A0%88%EC%A7%80%EC%8A%A4%ED%84%B0%EC%99%80-%EB%B3%80%EC%88%98/
+[1]:https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-1)-%EB%A0%88%EC%A7%80%EC%8A%A4%ED%84%B0%EC%99%80-%EB%B3%80%EC%88%98/
 
-[2]:https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-2\)-%EA%B8%B0%EB%B3%B8-%EB%AA%85%EB%A0%B9%EC%96%B4/
+[2]:https://chw-owo.github.io/os/%EC%96%B4%EC%85%88%EB%B8%94%EB%A6%AC%EC%96%B4-%EA%B8%B0%EC%B4%88-2)-%EA%B8%B0%EB%B3%B8-%EB%AA%85%EB%A0%B9%EC%96%B4/

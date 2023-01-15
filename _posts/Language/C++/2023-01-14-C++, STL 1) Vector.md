@@ -15,6 +15,14 @@ toc_sticky: true
 
 데이터를 저장하는 객체, 일종의 자료구조. 
 
+**3) 시퀀스 컨테이너**
+
+데이터가 삽입 순서대로 나열되는 형태의 컨테이너. 예시로 vector, list, deque가 있다. 
+
+**4) 연관 컨테이너**
+
+key-value처럼 관련있는 데이터를 쌍으로 저장하는 컨테이너. 예시로 map, set, multimap, multiset 등이 있다. 
+
 <br/>
 
 ## **2. Vector의 동작 원리**

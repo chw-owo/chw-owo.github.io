@@ -1,5 +1,5 @@
 ---
-title: C++, Modern C++ 01) auto
+title: C++, Modern C++ 02) R value Reference
 categories: Cpp
 tags: 
 toc: true

@@ -22,6 +22,8 @@ a = 3;      // O
 ```
 a는 Left, Right 양측 어디에든 올 수 있지만 3, a++ 같은 경우는 Right에만 올 수 있다. 이러한 개체들을 R-value라고 부른다.  
 
+<br/>
+
 ## **1.R-value Reference**
 
 ```c++
@@ -123,6 +125,61 @@ std::unique_ptr<Knight> uptr1 = std::make_unique<Knight>();
 std::unique_ptr<Knight> uptr2 = std::move(uptr1)    // O
 ```
 하지만 이러한 상황에서도 move, 즉 R-value 참조를 사용하면 uptr을 넘길 수 있다. 이 값은 더 이상 사용하지 않을 것이니 마음대로 사용하라는 의미를 담고 있기 때문이다. 
+
+<br/>
+
+## **2.R-value가 아닌 경우**
+
+**1)** 
+
+```c++
+Knight k1;
+Knight&& k2 = std::move(k1);
+
+CopyByRRef(k2);     // X 
+```
+위 코드의 경우 k2를 분명 R-value로 선언했으나, 정작 R-value 참조값으로 넣으려고 하면 R-value가 아니라면서 에러가 나는 것을 볼 수 있다. R-value는 기본적으로 독립되어서 사용될 수 없는 개체를 의미하는데, k2는 변수로 선언된 순간 이미 그 조건을 충족하지 못하기 때문이다. 따라서 R-value처럼 선언했다고 해도, R-vlaue 참조값으로 쓰기 위해서는 아래와 같이 캐스팅 과정을 거쳐야 한다. 
+
+```c++
+Knight k1;
+Knight&& k2 = std::move(k1);
+
+CopyByRRef(std::move(k2));     // O 
+```
+
+<br/>
+
+
+**2)** 
+
+
+```c++
+void Copy (Knight& knight) { ... }
+void Copy (const Knight& knight) { ... }
+void Copy (Knight&& knight) { ... }
+
+template<typename T>
+void CopyByRRef(T&& param)
+{
+    Copy(param);    // void Copy (const Knight& knight)
+}
+
+int main()
+{
+    CopyByRRef(Knight())         
+    return 0;
+}
+```
+위 코드의 경우 분명 &&으로 인자를 받아서 R-value를 넘긴 것 같은데 확인해보면 Copy (const Knight& knight)가 호출되게 된다. param이 인자값을 받는 순간 독립되어 존재할 수 있는 L-value가 되면서, 더 이상 R-value로 인식되지 않는 것이다. 
+
+```c++
+template<typename T>
+void CopyByRRef(T&& param)
+{
+    Copy(std::move(param));
+}
+```
+R-value 참조로 인자를 넘기고 싶다면 위와 같이 수정해주어야 한다. 
 
 <br/>
 

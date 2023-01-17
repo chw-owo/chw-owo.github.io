@@ -350,8 +350,8 @@ call __acrt_getptd
 ```
 우선 위에서도 사용했던 call __acrt_getptd를 통해 저장했던 값을 불러온다. 
 ```
-imul acx, dword ptr [eax+18h], 343FDh
-add ecx, 엄청 큰 수
+imul ecx, dword ptr [eax+18h], 343FDh
+add ecx, 269EC3h
 mov dword ptr [eax+18h], ecx
 shr ecx, 10h
 and ecx, 7FFFh

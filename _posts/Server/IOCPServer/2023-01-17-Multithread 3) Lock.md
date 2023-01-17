@@ -1,6 +1,6 @@
 ---
 title: Multithread 3) Lock
-categories: WindowsIOCPServer
+categories: IOCPServer
 tags: 
 toc: true
 toc_sticky: true

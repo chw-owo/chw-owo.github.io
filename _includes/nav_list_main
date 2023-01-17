@@ -127,8 +127,8 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
-                    {% if category[0] == "WindowsIOCPServer" %}
-                        <li><a href="/categories/WindowsIOCPServer" class="">WindowsIOCPServer ({{category[1].size}})</a></li>
+                    {% if category[0] == "IOCPServer" %}
+                        <li><a href="/categories/IOCPServer" class="">IOCPServer ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

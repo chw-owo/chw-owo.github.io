@@ -1,6 +1,6 @@
 ---
 title: Multithread 2) Atomic
-categories: WindowsIOCPServer
+categories: IOCPServer
 tags: 
 toc: true
 toc_sticky: true

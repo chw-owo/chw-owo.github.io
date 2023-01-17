@@ -1,5 +1,5 @@
 ---
-title: 2. Multithread 3) Lock
+title: Multithread 3) Lock
 categories: WindowsIOCPServer
 tags: 
 toc: true

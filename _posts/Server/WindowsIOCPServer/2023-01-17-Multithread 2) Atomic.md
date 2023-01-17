@@ -1,5 +1,5 @@
 ---
-title: 2. Multithread 2) Atomic
+title: Multithread 2) Atomic
 categories: WindowsIOCPServer
 tags: 
 toc: true

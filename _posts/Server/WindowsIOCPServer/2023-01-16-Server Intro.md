@@ -1,5 +1,5 @@
 ---
-title: 1. Server Intro
+title: Server Intro
 categories: WindowsIOCPServer
 tags: 
 toc: true

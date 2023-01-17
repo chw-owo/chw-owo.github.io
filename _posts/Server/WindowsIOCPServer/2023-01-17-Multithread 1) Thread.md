@@ -1,5 +1,5 @@
 ---
-title: 2. Multithread 1) Thread
+title: Multithread 1) Thread
 categories: WindowsIOCPServer
 tags: 
 toc: true

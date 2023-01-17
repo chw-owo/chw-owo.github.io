@@ -110,18 +110,32 @@
                 {% endfor %}
             </ul>
 
-        <span class="nav__sub-title">Procademy</span>
+        <span class="nav__sub-title">Server</span>
             <ul>
                 {% for category in site.categories %}
                     {% if category[0] == "ProcademyReview" %}
-                        <li><a href="/categories/ProcademyReview" class="">Review ({{category[1].size}})</a></li>
+                        <li><a href="/categories/ProcademyReview" class="">ProcademyReview ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
             <ul>
                 {% for category in site.categories %}
                     {% if category[0] == "ProcademyAssignment" %}
-                        <li><a href="/categories/ProcademyAssignment" class="">Assignment ({{category[1].size}})</a></li>
+                        <li><a href="/categories/ProcademyAssignment" class="">ProcademyAssignment ({{category[1].size}})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
+                    {% if category[0] == "WindowsIOCPServer" %}
+                        <li><a href="/categories/WindowsIOCPServer" class="">WindowsIOCPServer ({{category[1].size}})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
+                    {% if category[0] == "WindowsSystem" %}
+                        <li><a href="/categories/WindowsSystem" class="">WindowsSystem ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

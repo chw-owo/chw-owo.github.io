@@ -1,5 +1,5 @@
 ---
-title: Procademy, Assignment 01) 비트열 계산기
+title: Procademy, Assignment 02) 난수 생성기
 categories: ProcademyAssignment
 tags: 
 toc: true

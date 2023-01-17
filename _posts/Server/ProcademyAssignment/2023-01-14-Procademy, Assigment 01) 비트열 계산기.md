@@ -120,7 +120,7 @@ void Assignment01()
 		printf("OFF/ON [0,1] : ");
 		scanf_s("%u", &input);
 
-		if (index < 1 || index > 16)
+		if (index < 1 || index > sizeof(value) * 8)
 		{
 			printf("비트 범위를 초과하였습니다.\n\n");
 			continue;
@@ -131,7 +131,7 @@ void Assignment01()
 		else
 			value |= 1 << (index - 1);
 
-		for (char i = 0; i < 16; i++)
+		for (char i = 0; i < sizeof(value) * 8; i++)
 		{
 			flag = 1 << i;
 
@@ -165,7 +165,7 @@ while (true)
     printf("OFF/ON [0,1] : ");
     scanf_s("%u", &input);
 
-    if (index < 1 || index > sizeof(short) * 8)
+    if (index < 1 || index > sizeof(value) * 8)
     {
         printf("비트 범위를 초과하였습니다.\n\n");
         continue;
@@ -195,7 +195,7 @@ while (true)
 	while (true)
 	{
         ...
-		for (char i = 0; i < sizeof(short) * 8; i++)
+		for (char i = 0; i < sizeof(value) * 8; i++)
 		{
 			flag = 1 << i;
 
@@ -246,16 +246,23 @@ void Assignment02()
 		printf("값 [0~255] : ");
 		scanf_s("%u", &input);
 
-		if (index < 1 || index > sizeof(int))
+		if (index < 1 || index > sizeof(value))
 		{
 			printf("위치 범위를 초과하였습니다.\n\n");
 			continue;
 		}
+
+		if (input < 0 || input > 0xff)
+        {
+            printf("데이터 범위를 초과하였습니다.\n\n");
+            continue;
+        }
+
 		
-		value &= ~(255 << ((index - 1) * 8));
+		value &= ~(0xff << ((index - 1) * 8));
 		value |= input << ((index - 1) * 8);
 
-		for (char i = 0; i < sizeof(int); i++)
+		for (char i = 0; i < sizeof(value); i++)
 		{
 			tmp = value >> (i * 8);
 			printf("%u 번째 바이트 값 : %u \n", i+1, tmp);
@@ -286,11 +293,18 @@ while (true)
     printf("값 [0~255] : ");
     scanf_s("%u", &input);
 
-    if (index < 1 || index > sizeof(int))
+    if (index < 1 || index > sizeof(value))
     {
         printf("위치 범위를 초과하였습니다.\n\n");
         continue;
     }
+
+	if (input < 0 || input > 0xff)
+	{
+		printf("데이터 범위를 초과하였습니다.\n\n");
+		continue;
+	}
+
     ...
 }
 ```
@@ -300,7 +314,7 @@ while (true)
 while (true)
 {
     ...
-    value &= ~(255 << ((index - 1) * 8));
+    value &= ~(0xff << ((index - 1) * 8));
     value |= input << ((index - 1) * 8);
     ...
 }
@@ -311,25 +325,26 @@ while (true)
 while (true)
 {
     ...
-    for (char i = 0; i < sizeof(int); i++)
+    for (char i = 0; i < sizeof(value); i++)
     {
         printf("%u 번째 바이트 값 : %u \n", i+1, static_cast<unsigned char>(value >> (i * 8)));
     }
 
-    printf("\n전체 4바이트 값 : 0x%p \n\n", value);
+    printf("\n전체 4바이트 값 : 0x%08x \n\n", value);
+	
 }
 ```
 
-반복문을 돌며 R Shift한 후, unsigned char 크기에 맞게 캐스팅 하여 각 바이트의 값을 출력한다. value가 기본적으로 unsigned int 형이기 때문에 unsigned char로 캐스팅 하지 않으면 255를 초과하는 값이 나올 수 있다. 마지막으로 %p 형식 지정자를 통해 value를 16진수로 출력해준다. 만약 000000A2라는 값이 있을 경우, %x(16진수 형식 지정자)를 쓰면 A2가, %p(포인터 형식 지정자)를 쓰면 000000A2를 출력하기 때문에 전체 바이트를 확인하고 싶은 지금 상황에서는 %p가 더 적합하다. 
+반복문을 돌며 R Shift한 후, unsigned char 크기에 맞게 캐스팅 하여 각 바이트의 값을 출력한다. value가 기본적으로 unsigned int 형이기 때문에 unsigned char로 캐스팅 하지 않으면 255를 초과하는 값이 나올 수 있다. 마지막으로 %p 형식 지정자를 통해 value를 16진수로 출력해준다. 만약 000000A2라는 값이 있을 경우, 그냥 %x(16진수 형식 지정자)를 쓰면 A2가 출력되므로 앞의 빈 공간도 확인하고 싶다면 08x를 사용하여 전체를 출력하는 것이 좋다. 
+
+```c++
+printf("\n전체 4바이트 값 : 0x%p \n\n", value);
+```
+%p(포인터 형식 지정자)를 써도 000000A2로 출력된다. 그러나 %p는 포인터를 출력하는 것이 본래 목적이기 때문에 %08x를 사용하는 것이 더 적합하다.  
 
 결과는 아래와 같이 출력된다. 
 
 ![cmd](https://user-images.githubusercontent.com/96677719/212537368-ea2bc7e7-7778-4100-b178-e50dfaf3fce3.png)
-
-
-## **과제 피드백 후 수정**
-
-23.01.16 수업 이후 수정할 예정
 
 <br>
 
@@ -366,19 +381,35 @@ scanf는 지정된 버퍼 크기보다 더 많은 양의 문자를 넣을 수 �
 
 사진 출처: 두산백과
 
-<br>
+<br/>
 
 ## **질의응답**
 
 **1) char 자료형에 정수 받기**
 
-불필요한 공간을 줄이고 싶어서 index, input등 255 이하의 값만 받을 변수는 char로 선언했습니다. 그런데 scanf로 char 자료형에 정수를 받으려고 scanf_s("%u", &index)와 같이 입력했더니 버퍼 언더런 또는 오버런이 발생할 수 있다며 경고를 띄워주었습니다. 이런 위험성을 없애려면 어떻게 수정해야 할까요?
+Q. 불필요한 공간을 줄이고 싶어서 index, input등 255 이하의 값만 받을 변수는 char로 선언했습니다. 그런데 scanf로 char 자료형에 정수를 받으려고 scanf_s("%u", &index)와 같이 입력했더니 버퍼 언더런 또는 오버런이 발생할 수 있다며 경고를 띄워주었습니다. 이런 위험성을 없애려면 어떻게 수정해야 할까요?
 
-<br>
-
-**2) 버퍼 언더런과 오버런**
-
-버퍼 언더런과 오버런이 정확히 어떤 것인가요? 어떤 상황에서 주로 발생하고 어떻게 예방할 수 있나요?
+A. %%hhu를 사용하면 unsigned char을 표현할 수 있습니다.
 
 <br/>
 
+## **유의사항**
+
+**1) bit 연산 문제**
+
+만약 회사에서 시험을 보는데 2진수를 출력해야 하는 문제가 나온다면 대부분의 경우 bit 연산을 기본적으로 할 수 있는지 확인하기 위해 내는 것이니 소인수분해나 포인터로 해결하기보다는 bit 연산으로 해결하는 것이 좋다. 
+
+<br/>
+
+**2) 연산자 우선 순위**
+
+```c++
+value = value | input << (index - 1) * 8;
+```
+위와 같이 사용하면 경고를 띄워준다. Shift 연산자의 경우 덧셈, 뺄셈보다도 우선순위가 낮아서 의도하지 않은 결과가 나올 수 있기 때문이다. 
+
+```c++
+value = value | input << ((index - 1) * 8);
+```
+
+연산자 우선순위가 매우 명확한 게 아닌 이상 되도록 모든 상황에서 위처럼 우선순위를 명시해주는 것이 좋다. 

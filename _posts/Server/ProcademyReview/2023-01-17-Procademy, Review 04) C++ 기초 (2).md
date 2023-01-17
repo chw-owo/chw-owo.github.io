@@ -363,6 +363,4 @@ rand_s 같은 경우에는 window api의 하드웨어 정보를 잡아내서 그
 
 <br/>
 
-## **출처**
-
-[1]: https://chw-owo.github.io/os/Byte-Order,-%EB%B0%94%EC%9D%B4%ED%8A%B8-%EC%98%A4%EB%8D%94/
+[1]:https://chw-owo.github.io/os/Byte-Order,-%EB%B0%94%EC%9D%B4%ED%8A%B8-%EC%98%A4%EB%8D%94/

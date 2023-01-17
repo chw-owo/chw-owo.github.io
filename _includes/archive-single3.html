@@ -11,14 +11,14 @@
 {% endif %}
 
 <div class="{{ include.type | default: 'list' }}__item">
-  <article class="archive-item">
-      <div>
-          <span>
-            <a href="{{ post.url }}">{{post.title}}</a>
-          </span>
-          <small> 
-            <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i>{{ post.date | date: " %Y.%m.%d" }}
-          </small>
-      </div>
-    </article>
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    <div>
+      <span>
+        <a href="{{ post.url }}">{{post.title}}</a>
+      </span>
+      <small> 
+        <i class="fas fa-fw fa-calendar-alt" aria-hidden="true"> </i>{{ post.date | date: " %Y.%m.%d" }}
+      </small>  
+    </article>div>
+  </article>
 </div>

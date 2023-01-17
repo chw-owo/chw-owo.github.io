@@ -37,6 +37,23 @@ int* p  = (int*)  x;
 
 **2) sizeof()**
 
+```c++
+int a = sizeof(int);
+```
+sizeof는 사실 함수가 아니라 연산자다. 따라서 일반적인 경우 컴파일 시에 값이 정해진다.어셈블리어를 열어보면 그냥 값으로 치환해서 꽂아주는 것을 볼 수 있다. 함수를 call 하는 게 아니기 때문에 성능을 저하시키지 않으니 편하게 사용해도 괜찮다. 
+
+```c++
+int s0 = sizeof(char);
+int s1 = sizeof(char);
+int s2 = sizeof(char);
+```
+```c++
+int s0 = sizeof(char);
+int s1 = s;
+int s2 = s;
+```
+sizeof는 어차피 컴파일 시 상수로 치환되기 때문에 위, 아래에 성능 상 차이가 없다. 그러므로 위와 같이 동일한 sizeof를 여러번 써야 한다면 차라리 sizeof라고 명시해주는 것이 가독성 측면에서 낫다.
+
 <br/>
 
 **3) 연산자 우선 순위**

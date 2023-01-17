@@ -6,8 +6,8 @@ main:
     url: /index.html
   - title: "Category"
     url: /categories/
-  # - title: "Sample Posts"
-  #   url: /year-archive/
+  - title: "Monthly"
+    url: /month-archive/
   # - title: "Sample Collections"
   #   url: /collection-archive/
   # - title: "Sitemap"

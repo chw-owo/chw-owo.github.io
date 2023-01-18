@@ -1,6 +1,6 @@
 ---
 title: C++, Modern C++ 01) Basic
-categories: cpp
+categories: Cpp
 tags: 
 toc: true
 toc_sticky: true
@@ -411,4 +411,4 @@ public:
 
 [C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part1: C++ 프로그래밍 입문, Rookiss
 
-[1]:https://chw-owo.github.io/cpp/C++,-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-2\)-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5%EC%9D%98-%ED%8A%B9%EC%A7%95%EA%B3%BC-Class-%EC%8B%AC%ED%99%94/#3-%EB%8B%A4%ED%98%95%EC%84%B1
+[1]:https://chw-owo.github.io/Cpp/C++,-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5-2\)-%EA%B0%9D%EC%B2%B4%EC%A7%80%ED%96%A5%EC%9D%98-%ED%8A%B9%EC%A7%95%EA%B3%BC-Class-%EC%8B%AC%ED%99%94/#3-%EB%8B%A4%ED%98%95%EC%84%B1

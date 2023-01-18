@@ -1,6 +1,6 @@
 ---
 title: C++, Modern C++ 02) R value Reference
-categories: cpp
+categories: Cpp
 tags: 
 toc: true
 toc_sticky: true

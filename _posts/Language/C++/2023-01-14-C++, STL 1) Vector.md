@@ -1,6 +1,6 @@
 ---
 title: C++, STL 1) Vector
-categories: cpp
+categories: Cpp
 tags: 
 toc: true
 toc_sticky: true

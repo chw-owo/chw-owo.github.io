@@ -1,6 +1,6 @@
 ---
 title: C++, Modern C++ 05) Smart Pointer
-categories: cpp
+categories: Cpp
 tags: 
 toc: true
 toc_sticky: true

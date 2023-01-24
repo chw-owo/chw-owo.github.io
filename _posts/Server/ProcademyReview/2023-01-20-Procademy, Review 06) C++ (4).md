@@ -271,20 +271,20 @@ int main()
 ## **2) const와 포인터**
 
 ```c++
-const int * p = &a;	: 역참조 값을 변경할 수 없다
-int const *p = &a;	: 역참조 값을 변경할 수 없다
-int* const p = &a;	: p의 값을 변경할 수 없다
-const int* const p = &a;	: p와 역참조 값 모두 변경할 수 없다.
+const int * p = &a;			// 역참조 값을 변경할 수 없다
+int const *p = &a;			// 역참조 값을 변경할 수 없다
+int* const p = &a;			// p의 값을 변경할 수 없다
+const int* const p = &a;	// p와 역참조 값 모두 변경할 수 없다.
 ```
 
 자료형을 떼고 보면 조금 더 쉽다
 
 ```c++
 
-const * p = &a;	: 역참조 값을 변경할 수 없다
-const *p = &a;	: 역참조 값을 변경할 수 없다
-* const p = &a;	: p의 값을 변경할 수 없다
-const * const p = &a;	: p와 역참조 값 모두 변경할 수 없다.
+const * p = &a;			// 역참조 값을 변경할 수 없다
+const *p = &a;			// 역참조 값을 변경할 수 없다
+* const p = &a;			// p의 값을 변경할 수 없다
+const * const p = &a;	// p와 역참조 값 모두 변경할 수 없다.
 ```
 
 변수 타입을 제외하면 위와 같다. 살펴보면 const가 *의 앞에 붙냐 뒤에 붙냐에 따라 달라지는 것을 알 수 있다.

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Review 02) CPU와 소프트웨어 (2)
+title: Procademy, Q1, 02) Stack과 Assembly
 categories: ProcademyReview
 tags: 
 toc: true

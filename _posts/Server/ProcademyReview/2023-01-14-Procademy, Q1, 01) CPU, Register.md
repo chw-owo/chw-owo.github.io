@@ -1,5 +1,5 @@
 ---
-title: Procademy, Review 01) CPU와 소프트웨어 (1)
+title: Procademy, Q1, 01) CPU와 Register
 categories: ProcademyReview
 tags: 
 toc: true

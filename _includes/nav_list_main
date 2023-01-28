@@ -93,6 +93,13 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
+                    {% if category[0] == "WindowsSystem" %}
+                        <li><a href="/categories/WindowsSystem" class="">WindowsSystem ({{category[1].size}})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
                     {% if category[0] == "IOCPServer" %}
                         <li><a href="/categories/IOCPServer" class="">IOCPServer ({{category[1].size}})</a></li>
                     {% endif %}
@@ -100,8 +107,15 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
-                    {% if category[0] == "WindowsSystem" %}
-                        <li><a href="/categories/WindowsSystem" class="">WindowsSystem ({{category[1].size}})</a></li>
+                    {% if category[0] == "WindowsViaC&Cpp" %}
+                        <li><a href="/categories/WindowsViaC&Cpp" class="">WindowsViaC&Cpp ({{category[1].size}})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <ul>
+                {% for category in site.categories %}
+                    {% if category[0] == "1%Network" %}
+                        <li><a href="/categories/1%Network" class="">1%Network ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

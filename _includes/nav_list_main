@@ -100,6 +100,14 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
+                    {% if category[0] == "DS&Algorithm" %}
+                        <li><a href="/categories/DS&Algorithm" class="">DS&Algorithm ({{category[1].size}})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+            <ul>
+                {% for category in site.categories %}
                     {% if category[0] == "IOCPServer" %}
                         <li><a href="/categories/IOCPServer" class="">IOCPServer ({{category[1].size}})</a></li>
                     {% endif %}
@@ -112,6 +120,7 @@
                     {% endif %}
                 {% endfor %}
             </ul>
+            
             <ul>
                 {% for category in site.categories %}
                     {% if category[0] == "1%Network" %}

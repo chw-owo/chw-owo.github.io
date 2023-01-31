@@ -227,6 +227,64 @@ int main()
 
 # **4. Future**
 
+## **1) future**
+
+```c++
+std::future<int64> future = std::async(std::launch::async, Calculate);
+//...
+int64 sum = future.get();
+```
+async의 경우 첫번째 인자로 deferred, async, deferred | async 세가지 값을 넣을 수 있다. 이때 deferred를 넣을 경우 lazy evaluation, 지연해서 CPU 여유가 있을 때 실행해달라는 의미가 되고, async를 넣을 경우 별도의 스레드를 만들어서 실행해달라는 의미가 된다. 마지막 경우는 둘 중 알아서 골라 실행해달라는 의미가 된다. 
+
+```c++
+std::future<int64> future = std::async(std::launch::async, &Knight::Attack, k1);
+```
+위와 같이 객체의 멤버 함수를 대상으로 사용할 수도 있다.
+
+
+## **2) promise**
+
+```c++
+
+void PromiseWorker(std::promise<string>&& promise)
+{
+    promise.set_value("Secret Message");
+}
+
+void TestFuture()
+{
+    std::promise<string> promise;
+    std::future<string> future = promise.get_future();
+
+    thread t (PromiseWorker, std::move(promise));
+    future.get();
+    t.join();
+}
+
+```
+위와 같이 move(promise)로 promise의 소유권을 넘겨줄 경우 promise는 다른 스레드에, future는 현 스레드에서 갖고 있게 된다. 그러다가 promise의 set_value를 호출하는 순간 future에서 해당 value 값을 받아올 수 있게 된다. 
+
+## **3) packaged task**
+
+packaged_task도 promise와 유사하게 사용할 수 있다. 이때, packaged_task의 경우 사용할 함수 타입을 맞춰주어야 한다. 
+
+```c++
+void TaskWorker(std::packaged_task<int64(void)>&& task)
+{
+    task();
+}
+
+void TestFuture()
+{
+    std:packaged_task<int64(void)> task(Calculate);
+    std:future<int64> future = task.get_future();
+
+    thread t (TaskWorker, std::move(task));
+    int64 sum = future.get();
+    t.join;
+}
+```
+promise - future, packaged_task - future 자체가 많이 쓰이는 문법은 아니지만, 여러 스레드 간에 일회성의 간단한 통신이 필요할 때 유용하게 사용할 수 있다.
 
 <br/> 
 

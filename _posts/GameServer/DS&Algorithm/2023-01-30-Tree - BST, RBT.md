@@ -1,6 +1,6 @@
 ---
 title: Tree - BST, RBT
-categories: DS&Algorithm
+categories: DS-Algorithm
 tags: 
 toc: true
 toc_sticky: true

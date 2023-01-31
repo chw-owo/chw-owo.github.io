@@ -1,6 +1,6 @@
 ---
-title: Graph 1) DFS, BFS, Dijkstra
-categories: DS&Algorithm
+title: Graph - DFS, BFS, Dijkstra
+categories: DS-Algorithm
 tags: 
 toc: true
 toc_sticky: true

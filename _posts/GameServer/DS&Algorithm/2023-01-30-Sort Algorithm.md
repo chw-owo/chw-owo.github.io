@@ -1,6 +1,6 @@
 ---
 title: Sort Algorithm
-categories: DS&Algorithm
+categories: DS-Algorithm
 tags: 
 toc: true
 toc_sticky: true

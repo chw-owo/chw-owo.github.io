@@ -1,6 +1,6 @@
 ---
 title: Tree - Disjoint, Krustal, Prim
-categories: DS&Algorithm
+categories: DS-Algorithm
 tags: 
 toc: true
 toc_sticky: true

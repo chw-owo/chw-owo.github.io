@@ -8,9 +8,9 @@ toc_sticky: true
 
 이 포스트는 Rookiss님의 \<C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈 Part4:  게임 서버> 수업을 바탕으로 공부한 내용을 정리한 것입니다. 
 
-## **1. Lock**
+# **1. Lock**
 
-**1) Lock이 필요한 이유**
+## **1) Lock이 필요한 이유**
 
 바로 이전의 Atomic 포스트에서, 멀티스레드 환경에서 명령어의 순서가 보장되아 생기는 버그를 예방하기 위해 atomic을 사용했다. lock 역시 이러한 상황을 예방하기 위한 동기화 기법 중 하나이다. 예시 코드로 lock이 필요한 상황을 살펴보자.
 
@@ -60,7 +60,7 @@ int main()
 
 <br/>
 
-**2) Lock 사용법**
+## **2) Lock 사용법**
 
 ```c++
 #include <mutex>
@@ -96,11 +96,11 @@ m1.unlock();
 <br/>
 
 
-## **2. DeadLock**
+# **2. Lock Guard**
 
 Deadlock은 잘못된 자원 관리로 인해 둘 이상의 프로세스가 함께 퍼지는 현상을 의미한다. 만약 lock을 걸고 unlock을 하지 않을 경우 해당 스레드가 다른 스레드 (main 스레드 포함)를 막아버리면서 Deadlock이 발생하게 된다. 코드가 복잡해질 경우, 수동으로 lock, unlock을 관리하면 실수가 생길 수 있으므로 아래와 같은 방법들을 사용하길 권장한다. 
 
-**1) Lock Guard**
+## **1) Lock Guard**
 
 ```c++
 void Push()
@@ -147,7 +147,7 @@ void Push()
 
 <br/>
 
-**2) Unique Lock**
+## **2) Unique Lock**
 
 lock_guard와 비슷한 역할을 하는 것 중에 Unique Lock이라는 게 존재한다. 
 
@@ -179,20 +179,12 @@ void Push()
 ```
 위와 같이 std::defer_lock을 사용할 경우, lock 시점을 지정해줄 수 있다. 이 기능 역시 성능에 영향을 주기 때문에 간단한 경우라면 lock_guard를, 꼭 lock() 시점을 분리해야 한다면 unique_lock을 사용하는 것이 좋다. 
 
-<br/>
+## **3) DeadLock의 실제 발생 상황**
 
-**3)**
-
-<br/>
-
-## **3. SpinLock**
+위처럼 unlock을 잊어서 Deadlock이 발생하는 경우는 많지 않다. 실제로는 다음과 같은 교착 상황에서 Deadlock이 많이 발생한다. 만약 두 스레드가 있는데 만약 스레드 A는 mutex 1을 lock한 뒤 mutex2를 lock 해야 하는 코드를 갖고 있고, 스레드 B는 mutex2을 lock한 뒤 mutex1를 lock해야 하는 코드를 갖고 있다고 하자. 이런 경우 여러번 실행 했을 때 두 스레드가 교착상태에 빠지며 Deadlock에 걸린다. 이렇게 생기는 deadlock은 위와 같이 lock_guard를 사용해도 예방할 수 없으며, mutex1, 2의 lock 순서를 통일해주어야 한다. 이런 문제는 매번 문제가 발생하는 게 아니기 때문에 프로그램을 제작할 땐 문제가 없다가 라이브 시에 터질 수도 있어서 더 주의해야 한다. 
 
 <br/>
 
-## **4. Lock 구현 이론**
-
-<br/>
-
-## **출처**
+# **출처**
 
 [C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part4: 게임 서버, Rookiss

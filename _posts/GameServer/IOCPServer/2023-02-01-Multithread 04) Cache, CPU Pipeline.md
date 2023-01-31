@@ -1,5 +1,5 @@
 ---
-title: Multithread 06) Cache, CPU Pipeline
+title: Multithread 04) Cache, CPU Pipeline
 categories: IOCPServer
 tags: 
 toc: true

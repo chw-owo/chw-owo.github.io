@@ -1,5 +1,5 @@
 ---
-title: Multithread 12) Lock-Free Stack
+title: Multithread 08) Lock-Free Stack & Queue
 categories: IOCPServer
 tags: 
 toc: true

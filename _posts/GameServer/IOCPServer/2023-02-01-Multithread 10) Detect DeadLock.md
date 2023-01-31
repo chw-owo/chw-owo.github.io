@@ -1,5 +1,5 @@
 ---
-title: Multithread 16) Detect DeadLock
+title: Multithread 10) Detect DeadLock
 categories: IOCPServer
 tags: 
 toc: true

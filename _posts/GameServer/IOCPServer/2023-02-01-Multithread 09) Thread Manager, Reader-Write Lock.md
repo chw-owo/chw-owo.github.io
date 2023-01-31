@@ -1,5 +1,5 @@
 ---
-title: Multithread 15) Reader-Write Lock
+title: Multithread 09) Thread Manager, Reader-Write Lock
 categories: IOCPServer
 tags: 
 toc: true

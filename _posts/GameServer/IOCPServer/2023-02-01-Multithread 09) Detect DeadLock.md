@@ -1,5 +1,5 @@
 ---
-title: Multithread 09) Thread Manager, Reader-Write Lock
+title: Multithread 09) Detect DeadLock
 categories: IOCPServer
 tags: 
 toc: true

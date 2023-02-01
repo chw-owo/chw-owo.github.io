@@ -1,5 +1,5 @@
 ---
-title: Multithread 10) Detect DeadLock
+title: Multithread 07) Lock-Free Stack & Queue
 categories: IOCPServer
 tags: 
 toc: true

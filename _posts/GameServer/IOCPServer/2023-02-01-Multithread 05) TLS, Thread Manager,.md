@@ -129,30 +129,27 @@ static void ThreadManager::DestroyTLS()
 **CoreGlobal.h**
 ```c++
 extern class ThreadManager* GThreadManager;
-
-class CoreGlobal
-{
-public:
-    CoreGlobal();
-    ~CoreGlobal();
-};
 ```
 
 **CoreGlobal.cpp**
 ```c++
-CoreGlobal::CoreGlobal()
+class CoreGlobal
 {
-    GThreadManager = new ThreadManager();
-}
-
-CoreGlobal::~CoreGlobal()
-{
-    delete GThreadManager;
-}
+public:
+    CoreGlobal()
+    {
+        GThreadManager = new ThreadManager();
+    }
+    ~CoreGlobal()
+    {
+        delete GThreadManager;
+    }
+}GCoreGlobal;
 ```
 
 **Main.cpp**
 ```c++
+#include "ThreadManager.h"
 
 void ThreadMiain(int32 threadId)
 {

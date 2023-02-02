@@ -14,9 +14,20 @@ mutex는 완전히 상호 배타적인 lock이기 때문에 굳이 배타적으�
 
 <br/> 
 
-# **2. Reader-Writer Lock**
+# **2. Reader-Writer Lock 구현**
 
-이를 보안하기 위해 Read와 Write를 분리해서 lock을 거는 것을 두고 Reader-Writer lock이라고 부른다. C++의 라이브러리를 사용할 수도 있지만 의도대로 최적화 하기 위해 Reader-Writer lock을 직접 구현하여 사용할 수 있다. 그 예제는 아래와 같다. 
+이를 보안하기 위해 Read와 Write를 분리해서 lock을 걸 수 있다. C++의 라이브러리를 사용할 수도 있지만 의도대로 최적화 하기 위해 Reader-Writer lock을 직접 구현하여 사용할 수 있다. 그 예제는 아래와 같다. 
+
+**CoreMacro.h**
+
+```c++
+#define USE_MANY_LOCKS(count)   Lock _locks[count];
+#define USE_LOCK                USER_MANY_LOCKS(1)
+#define READ_LOCK_IDX(idx)      ReadLockGuard readLockGuard_##idx(_locks[idx]);
+#define READ_LOCK               READ_LOCK_IDX(0)
+#define WRITE_LOCK_IDX(idx)      WriteLockGuard writeLockGuard_##idx(_locks[idx]);
+#define WRITE__LOCK               WRITE__LOCK_IDX(0)
+```
 
 **Lock.h**
 
@@ -47,6 +58,26 @@ public:
 private:
     Atomic<uint32> _lockFlag = EMPTY_FLAG;
     uint16  _writeCount = 0;
+}
+
+class ReadLockGuard
+{
+pubilc:
+    ReadLockGuard(Lock& lock) : _lock(lock) { _lock.ReadLock(); }
+    ~ReadLockGuard() { _lock.ReadUnlock(); }
+
+private:
+    Lock&   _lock;
+}
+
+class WriteLockGuard
+{
+pubilc:
+    WriteLockGuard(Lock& lock) : _lock(lock) { _lock.WriteLock(); }
+    ~WriteLockGuard() { _lock.WriteUnlock(); }
+
+private:
+    Lock&   _lock;
 }
 ```
 
@@ -97,12 +128,106 @@ void Lock::WriteUnlock()
 
 void Lock::ReadLock()
 {
+    // 동일한 스레드가 소유하고 있다면 성공
+    const uint32 lockThreadId = (_lockFlag.load() & WRITE_THREAD_MASK) >> 16;
+    if(LThreadId == lockThreadId)
+    {
+        _lockFlag.fetch_add(1);
+        return;
+    }
 
+    while(true)
+    {
+        for(uint32 spinCount = 0; spinCount < MAX_SPIN_COUNT; spinCount++)
+        {
+            uint expected = (_lockFlag.load()&READ_COUNT_MASK);
+            if(_lockFlag.compare_exchange_strong(OUT expected, expected + 1))
+                return;    
+        }
+        if(::GetTickCount64() - beginTick >= ACQUIRE_TIMEOUT_TICK)
+            CRASH("LOCK_TIMEOUT");
+        this_thread::yield();
+    }
 }
 
 void Lock::ReadUnlock()
 {
+    if(( _lockFlag.fetch_sub(1) & READ_COUNT_MASK) == 0)
+        CRASH("MULTIPLE_LOCK");
+}
+```
 
+**Main.cpp**
+
+```c++
+class TestLock
+{
+    USE_LOCK;
+
+public: 
+    int32 TestRead()
+    {
+        READ_LOCK;
+
+        if(_queue.empty())
+            return -1;
+
+        return _queue.front();
+    }
+
+    void TestPush()
+    {
+        WRITE_LOCK;
+        _queue.push(rand()%100);
+    }
+
+    void TestPop()
+    {
+        WRITE_LOCK;
+
+        if(_queue.empty() == false)
+            _queue.pop();
+    }
+
+private:
+    queue<int32> _queue;
+}
+
+TestLock testLock;
+
+void ThreadWrite()
+{
+    while(true)
+    {
+        testLock.TestPush();
+        this_thread::sleep_for(1ms);
+        testLock.TestPop();
+    }
+}
+
+void ThreadRead()
+{
+    while(true)
+    {
+        int32 value = testLock.TestRead();
+        cout <<value <<endl; 
+        this_thread::sleep_for(1ms);
+    }
+}
+
+int main()
+{
+    for(int32 i = 0; i < 2; i++)
+    {
+        GThreadManager -> Launch(ThreadWrite);
+    }
+
+    for(int32 i = 0; i < 5; i++)
+    {
+        GThreadManager -> Launch(ThreadRead);
+    }
+
+    GThreadManager -> Join();
 }
 ```
 <br/>

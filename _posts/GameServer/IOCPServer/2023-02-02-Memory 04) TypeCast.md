@@ -1,5 +1,5 @@
 ---
-title: Memory 05) Object Pool
+title: Memory 05) TypeCast
 categories: IOCPServer
 tags: 
 toc: true

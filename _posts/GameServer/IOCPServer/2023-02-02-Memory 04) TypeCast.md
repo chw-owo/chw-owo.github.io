@@ -1,5 +1,5 @@
 ---
-title: Memory 05) TypeCast
+title: Memory 04) TypeCast
 categories: IOCPServer
 tags: 
 toc: true

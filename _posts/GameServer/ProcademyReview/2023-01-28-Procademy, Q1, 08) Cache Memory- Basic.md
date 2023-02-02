@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 08) Cache Memory
+title: Procademy, Q1, 08) Cache Memory - Basic
 categories: ProcademyReview
 tags: 
 toc: true

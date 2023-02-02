@@ -190,3 +190,5 @@ STL Container의 기본 구조를 살펴보면 allocator 를 설정해주는 부
 [C++과 언리얼로 만드는 MMORPG 게임 개발 시리즈] Part4: 게임 서버, Rookiss
 
 [1]: https://chw-owo.github.io/procademyreview/Procademy,-Q1,-09)-Cache-Memory-MESI,-Align/
+
+[2]: https://chw-owo.github.io/iocpserver/Memory-03)-Memory-Pool/

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 11) Memory - Page Entry, Hash Table
+title: Procademy, Q1, 11) Memory - Virtual Memory, Hash Table
 categories: ProcademyReview
 tags: 
 toc: true

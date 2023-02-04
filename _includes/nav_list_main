@@ -115,8 +115,8 @@
             </ul>
             <ul>
                 {% for category in site.categories %}
-                    {% if category[0] == "WindowsViaC&Cpp" %}
-                        <li><a href="/categories/WindowsViaC&Cpp" class="">WindowsViaC&Cpp ({{category[1].size}})</a></li>
+                    {% if category[0] == "WindowsViaC-Cpp" %}
+                        <li><a href="/categories/WindowsViaC-Cpp" class="">WindowsViaC-Cpp ({{category[1].size}})</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

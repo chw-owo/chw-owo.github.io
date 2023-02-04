@@ -1,6 +1,6 @@
 ---
-title: Basic 01) Error Handling
-categories: WindowsViaC&Cpp
+title: Basic 03) Kernel Object
+categories: WindowsViaC-Cpp
 tags: 
 toc: true
 toc_sticky: true

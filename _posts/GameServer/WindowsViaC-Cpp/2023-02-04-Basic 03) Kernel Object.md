@@ -101,15 +101,55 @@ BOOL bHandleIsInheritable = (0 != (dwFlags & HANDLE_FLAG_INHERIT));
 
 이 경우 부모 - 자식 관계가 아닌 프로세스 간에도 오브젝트 핸들을 공유할 수 있다. 대부분의 커널 오브젝트는 Create 시에 이름을 지정할 수 있는데, 이를 이용하여 공유하는 것이다. 이름은 최대 MAX_PATH(260) 길이로 지정할 수 있으며, 명명 규칙이 제공되지 않기 때문에 동일한 이름을 만들지 않도록 유의해야 한다. A 프로세스에서 만든 것과 동일한 타입, 동일한 이름의 오브젝트를 B 프로세스에서 Create 하게 될 경우, 해당 오브젝트에 접근할 수 있는 B 프로세스 고유의 핸들 값을 생성, 반환된다. 
 
-이때 Create 대신 Open 함수를 사용할 수도 있다. Create를 사용하면 동일한 커널 오브젝트가 없을 경우 새로운 오브젝트를 생성하는 반면 Open은 함수 호출에 실패한다. 만약 이름은 일치하지만 타입이 일치하지 않거나 접근 권한이 없는 경우 두 경우 다 함수의 반환값으로 NULL을, GetLastError에서는 ERROR_INVALID_HANDLE을 반환한다. 반면 일치하는 이름이 없을 경우 Create는 해당 오브젝트를 생성, Open의 경우 함수 반환값으로 NULL을, GetLastError에서는 ERROR_FILE_NOT_FOUND를 반환한다. 
+이때 Create 대신 Open 함수를 사용할 수도 있다. Create를 사용하면 동일한 커널 오브젝트가 없을 경우 새로운 오브젝트를 생성하는 반면 Open은 함수 호출에 실패한다. 만약 이름은 일치하지만 타입이 일치하지 않거나 접근 권한이 없는 경우 두 경우 다 함수의 반환값으로 NULL을, GetLastError에서는 ERROR_INVALID_HANDLE을 반환한다. 반면 일치하는 이름이 없을 경우 Create는 해당 오브젝트를 생성, Open의 경우 함수 반환값으로 NULL을, GetLastError에서는 ERROR_FILE_NOT_FOUND를 반환한다. Create 함수를 호출하여 기존 오브젝트를 참조할 때는 이름, 타입만 사용되고 그 외의 보안 특성 정보 및 두번째 인자의 경우 무시된다. 
 
-
-중요한 것은 B에서 새로운 오브젝트를 생성하는 것이 아니며, A와 B의 핸들은 동일한 오브젝트를 가리키지만 각각 다른 값을 갖고 있다는 것이다. 당연히 해당 오브젝트의 Usage Count는 증가하게 된다. 
+중요한 것은 B에서 새로운 오브젝트를 생성하는 것이 아니며, A와 B의 핸들은 동일한 오브젝트를 가리키지만 각각 다른 값을 갖고 있다는 것이다. 당연히 해당 오브젝트의 Usage Count는 증가하게 된다. 또, 유의해야 할 것은 윈도우 비스타 이전 버전에서는 다른 프로세스가 공유 오브젝트의 이름을 훔치는 것으로부터 모호할 수 없었다. 이러한 방식은 Dos 공격의 기본 매커니즘이 된다. 따라서 공유할 필요가 없는 오브젝트의 경우 명명하지 않고 사용하는 것이 보다 일반저이다. 
 
 ## **4) 방법 3 - 오브젝트 핸들 복사**
 
+DuplicateHandle 함수를 호출하여 커널 오브젝트 핸들을 복사할 수 있다. DuplicateHandle 함수의 원형은 아래와 같다. 
+
+```c++
+BOOL DuplicateHandle (
+    HANDLE  hSourceProcessHandle,
+    HANDLE  hSourceHandle,
+    HANDLE  hTargetProcessHandle,
+    PHANDLE phTargetHandle,
+    DWORD   dwDesiredAccess,
+    BOOL    bInheritHandle,
+    DWORD   dwOptions
+)
+```
+hSourceProcessHandle, hTargetProcessHandle에 프로세스 커널 오브젝트의 핸들을 넘겨주어야 한다. 이때 두 매개변수에는 반드시 프로세스 커널 오브젝트에 대한 핸들을 전달해야 한다. 만일 다른 타입의 커널 오브젝트를 전달하면 이 함수는 실패하게 된다. 
+
+hSourceHandle에는 어떤 타입의 커널 오브젝트라도 전달할 수 있다. 이는 DuplicateHandle 함수를 호출한 프로세스와 아무 연관성을 가지지 않으며 hSourceProcessHandle 이 가리키는 프로세스에서만 의미를 가지는 프로세스 고유 값이다. phTargetHandle로는 HANDLE 변수의 주소값을 전달하게 되며, 함수 호출 이후 hTargetProcessHandle가 가리키는 프로세스에서만 사용될 수 있는 고유의 핸들 값, 즉 소스 핸들의 복사본을 전달 받게 된다. 
+
+dwDesiredAccess, bInheritHandle를 통해서는 액세스 마스크와 상속 플래그의 값을 지정한다. dwOptions에는 DUPLICATE_SAME_ACCESS, DUPLICATE_CLOSE_SOURCE를 사용할 수 있다. 전자는 동일한 액세스 마스크를 전달하고 싶을 때 지정하며, 후자는 소스 프로세스에서 해당 핸들을 삭제할 때 사용한다. 
+
+커널 상속과 마찬가지로 이 함수의 단점 중 하나는 Target Process가 새로운 커널 오브젝트에 접근 가능하게 되었다는 사실을 통보받지 못한다는 것이다. 이를 명시해주고 싶다면 윈도우 메세지, IPC 등의 통신 방법을 이용해 핸들 값을 전달해야 할 것이다. 
+
 <br/>
 
-# **5. Private Namespace**
+# **5. Namespace**
+
+## **1) Terminal Service Namespace**
+
+터미널 서비스를 수행하는 머신은 커널 오브젝트에 대해 다수의 Namespace를 가진다. 모든 Terminal Service Client Session에는 접근 가능한 커널 오브젝트를 위한 전역 NameSpcae가 있는데, 이는 주로 서비스 타입의 어플리케이션에 의해 사용된다. 이와는 별도로 각 Client Session은 고유 Namespace를 가지게 된다. 이로 인해 설령 오브젝트 이름이 갖더라도 다른 세션의 오브젝트에 접근할 수 없기 때문에, 다수의 세션에서 동일한 어플리케이션이 서로간에 영향을 미치지 않게 된다. 이는 서버 머신 뿐 아니라 리모트 데스크톱, 빠른 사용자 전환에서도 동일하게 사용된다. 
+
+어떤 터미널 세션에서 특정 프로세스가 수행되는지 알고 싶다면 ProcessIdToSessionId(processID, &sessionID) 함수를 사용하면 된다. 또, 커널 오브젝트를 생성할 때 인자값을 통해 전역으로 만들 것인지 현재 세션의 Namespace 내에 만들 것인지 지정할 수 있다. 그 예시는 아래와 같다. 
+
+```c++
+Handle h_global = CreateEvent(NULL, FALSE, FALSE, TEXT("Global\\MyName")); 
+Handle h_local = CreateEvent(NULL, FALSE, FALSE, TEXT("Local\\MyName")); 
+```
+마이크로소프트는 Global, Local을 예약된 키워드로 간주하여 오브젝트 이름에 사용하지 않도록 권고한다. Session 역시 예약된 키워드로 간주하며 "Session\\\<current session ID>" 와 같이 사용된다. 이때 Session 키워드를 사용한다고 해서 현재 수행 중인 세션이 아닌 다른 세션에 오브젝트를 생성하는 것은 불가능하다. 그 경우 GetLastError에서 ERROR_ACCESS_DENIED를 반환한다. 
+
+## **2) Private Namespace**
+
+커널 오브젝트가 다른 어플리케이션에서 사용하는 오브젝트 이름과 절대 충돌하지 않게끔 만들기 위해서, CreatePrivateNamespace를 이용해 사용자 고유의 Private Namespace를 만들 수 있다. 이는 커널 오브젝트를 담기 위한 일종의 디렉토리와 같다. 디렉토리처럼 private namespace는 보안 디스크립터를 갖고 있고, 이 값은 CreaetPrivateNamespace를 호출할 때 연계된다. 
+
+파일 시스템의 디렉토리와 다른 점은 상위 디렉토리도, 이름도 가지지 않는다는 것이다. 프로세스 익스플로러로 Private Namespace에 속한 오브젝트를 살펴보면 이름 대신 "...\\"와 같이 나타난다. 이를 통해 정보를 숨기고 잠재적 해커로부터 안전하게 보호할 수 있다. Private namespace의 이름은 프로세스 내에서만 보이는 일종의 별칭이다. 동일한 프로세스 내에서도 동일한 Private namespace를 열어서 다른 별칭을 부여할 수 있다. 
+
+일반적으로 Namespace를 생성할 때는 바운더리에 대한 테스트가 먼저 수행되는데, 이때 현재 스레드의 토큰은 반드시 바운더리 디스크립터가 갖고 있는 SID 값을 포함해야 한다. 
 
 <br/>

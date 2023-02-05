@@ -1,5 +1,5 @@
 ---
-title: Basic 01) Error Handling
+title: Task 06) Thread Sync - Kernel
 categories: WindowsViaC-Cpp
 tags: 
 toc: true

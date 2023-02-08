@@ -1,5 +1,5 @@
 ---
-title: Procademy, Assignment 02) 난수 생성기
+title: Procademy, Assignment 02) 난수 생성기 01
 categories: ProcademyAssignment
 tags: 
 toc: true

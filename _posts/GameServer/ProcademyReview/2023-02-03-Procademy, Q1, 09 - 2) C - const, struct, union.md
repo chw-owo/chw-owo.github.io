@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 09 - 2) C++ - const, struct, union
+title: Procademy, Q1, 09 - 2) C - const, struct, union
 categories: ProcademyReview
 tags: 
 toc: true

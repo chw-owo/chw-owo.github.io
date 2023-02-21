@@ -732,7 +732,7 @@ void GameOver()
 
 ### **4) Clear**
 
-**.h**
+**Clear.h**
 ```c++
 #pragma once
 
@@ -741,7 +741,7 @@ void GetKeyClear();
 void InitialClear();
 ```
 
-**.cpp**
+**Clear.cpp**
 ```c++
 #include "Clear.h"
 #include "Render.h"
@@ -809,7 +809,7 @@ void InitialClear()
 
 ### **5) Over**
 
-**.h**
+**Over.h**
 ```c++
 #pragma once
 
@@ -818,7 +818,7 @@ void GetKeyOver();
 void LoadOverData();
 ```
 
-**.cpp**
+**Over.cpp**
 ```c++
 #include "Over.h"
 #include "Render.h"

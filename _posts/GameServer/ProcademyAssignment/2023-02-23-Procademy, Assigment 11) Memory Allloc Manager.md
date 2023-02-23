@@ -42,6 +42,8 @@ Not Release Memory : [0x5fe238] 150 Bytes
 File : new_log.cpp : 197
 ```
 
+<br/>
+
 # **과제 코드**
 
 **MemoryAllocMgr.h**
@@ -161,6 +163,8 @@ void PrintAlloc(void)
 	printf("--------------------------------------\n");
 }
 ```
+
+<br/>
 
 # **질문**
 

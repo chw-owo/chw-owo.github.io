@@ -120,3 +120,21 @@ A. 어떻게 시간을 측정하는지 원리를 알면 이해할 수 있다.
 시간을 측정하는 건 소프트웨어가 하는 일이 아니라 하드웨어가 하는 일이며, 하드웨어의 신호를 받아서 소프트웨어가 그에 맞춰 갱신하는 것이다. timeGetTime보다 더 고해상도 용으로 제공되는 타이머의 경우 CPU clock을 사용하며 timeGetTime, GetTickCount의 경우 CPU 안에 내장된 Timer Interrupt를 사용한다. 
 
 CPU가 명령어를 처리하다가 Interrupt가 발생하면 해당 Interrupt를 처리하기 위해 처리하던 것을 중단한다. 이때, Interrupt 사이에도 우선 순위 번호가 매겨지는데 그 중 0번이 Timer Interrupt이다. 이러한 Timer Interrupt가 시간을 체크하고 주기적으로 신호를 보내는 역할을 한다. 옛날에는 Timer가 메인보드에 있었는데 최근에는 CPU 내부로 들어왔다. 이 Timer가 시스템 부팅 시에 시작하기 때문에 기준이 이렇게 잡힌 것이다.
+
+<br/>
+
+Q. QueryPerformance 함수를 두고 GetTickCount를 사용해야 하는 상황이 있나요?
+
+A. 고해상도 타이머가 필요없는 상황이라면 GetTickCount64 쪽이 더 가볍고 성능이 조금 더 좋다. 단순한 컨텐츠 로직을 짠다면 GetTickCount64로도 충분하다. 하지만 요즘은 정확도를 위해 웬만해서는 QueryPerformance 함수를 사용하는 경우가 많다. 
+
+<br/>
+
+Q. QueryPerformance 함수와 TimeGetTime 중에선 어떤 게 더 성능이 좋나요?
+
+A. 그 둘을 비교한 적은 없지만 TimeGetTime도 가벼운 함수는 아니다. 게다가 32bit 라는 한계가 있기 때문에 TimeGetTime을 쓸 거면 QueryPerformance 함수를 쓰는 게 낫다.
+
+<br/>
+
+Q. 전역 변수도 초기화를 꼭 해야되나요?
+
+A. 전역에 두면 초기화를 안해도 0이 들어가니까 영 하기 싫으시면 안하셔도 된다.

@@ -215,19 +215,191 @@ bInheritHandle에 TRUE를 전달하면 부모 프로세스가 접근 가능한 �
 
 ## **05) fdwCreate**
 
-fdwCreate 매개변수는 새로운 프로세스를 어떻게 생성할지를 결정하게 된다. 
+fdwCreate 매개변수는 새로운 프로세스를 어떻게 생성할지를 결정하게 된다. 여러개의 플래그 값을 비트 OR 연산으로 결합해서 전달할 수 있으며, 사용 가능한 플래그는 다음과 같다. 
+
+**DEBUG_PROCESS**: 현 프로세스가 자식 프로세스와 자식의 자식 프로세스를 디버깅 할 수 있게 된다. 
+
+**DEBUG_ONLY_THIS_PROCESS**: 현 프로세스가 자식 프로세스를 디버깅 할 수 있게 된다. 
+
+**CREATE_SUSPENDED**: 프로세스 생성 후 주 스레드를 정지 상태로 만든다. 이를 통해 자식 프로세스 주소 공간 내 메모리 및 주 스레드의 우선 순위 등을 변경할 수 있게 된다. ResumeThread 함수를 통해 정지 상태를 해제할 수 있다. 
+
+**DETACHED_PROCESS**: CUI 기반 자식 프로세스가 부모 프로세스의 콘솔 윈도우에 접근하지 못하도록 한다. 자식 프로세스가 콘솔 윈도우에 텍스트를 출력하기 위해서는 AllocConsole을 호출해야만 한다. 
+
+**CREATE_NEW_CONSOLE**: 프로세스 생성 시 새 콘솔 윈도우를 생성한다. 
+
+**CREATE_NO_WINDOW**: 콘솔 윈도우를 생성하지 않는다. 사용자 인터페이스가 필요 없는 CUI 어플을 수행할 때 사용한다. 
+
+**CREATE_NEW_PROCESS_GROUP**: Ctrl + C, Ctrl + Break를 누르면 통보할 프로세스들의 목록을 수정한다. 
+
+**CREATE_DEFAULT_ERROR_MODE**: 현 프로세스가 자식 프로세스에게 에러 모드를 상속하지 않는다. 
+
+**CREATE_SEPERATE_WOW_VDM**: 16bit 윈도우 어플을 수행할 때 사용되며, 가상 도스 머신을 생성하고 그 안에서 16bit 윈도우 어플을 수행하도록 한다. 이를 사용하지 않을 경우 기본적으로 모든 16bit 어플은 하나의 VDM을 공유하게 되며, 윈도우 98에서는 이 플래그를 사용하여 동작 방식을 변경할 수 없다. 
+
+**CREATE_SHARED_WOW_VDM**: 16bit 윈도우 어플을 수행할 때 사용되며, 16bit 윈도우 어플을 시스템이 공유하는 VDM 내에서 수행할 수 있게 한다. 
+
+**CREAT_UNICODE_ENVIRONMENT**: 자식 프로세스 환경 블록 내에 유니코드 문자가 사용되도록 한다. 이를 사용하지 않을 경우 프로세스의 환경 블록은 기본적으로 ANSI 문자열을 사용한다. 
+
+**CREATE_FORCEDOS**: MS-DOS 어플이 16bit OS/2 어플 내에서 수행되도록 한다. 
+
+**CREATE_BREAKAWAY_FROM_JOB**: 잡 내의 프로세스가 해당 잡과 연결되지 않는 프로세스를 생성할 때 사용한다. 
+
+**EXTENDED_STARTUPINFO_PRESENT**: psiStartInfo 매개변수를 통해 STARTUP_INFOEX를 전달할 것임을 운영체제에게 알려준다.
+
+또, 아래와 같은 방식으로 우선순위 클래스를 지정할 수도 있으나 이는 권장되지 않으며 실제로 많이 사용되지도 않는다고 한다. 
+
+**IDLE_PRIORITY_CLASS**: 유휴 상태
+
+**BELOW_NORMAL_PRIORITY_CLASS**: 보통 이하
+
+**NORMAL_PRIORITY_CLASS**: 보통
+
+**ABOVE_NORMAL_PRIORITY_CLASS**: 보통 이상
+
+**HIGH_PRIORITY_CLASS**: 높음
+
+**REALTIME_PRIORITY_CLASS**: 실시간
+
+이러한 우선순위 클래스를 지정하게 되면 새로 생성되는 프로세스 내의 스레드들이 다른 프로세스의 스레드들과 차별적으로 스케줄링 된다. 
+
+## **06) pvEnvironment**
+
+새 프로세스가 사용할 환경 변수 문자열을 포함하고 있는 메모리 블록의 포인터를 지정한다. 부모 프로세스의 환경 블록을 상속 받을 경우 이를 NULL로 지정하거나 GetEnvironmentStrings 함수의 반환값을 사용하면 된다. 이 함수는 현재 프로세스의 환경 블록 주소를 반환하며, 이로 인해 반환된 메모리 블록이 더 이상 필요하지 않을 경우 FreeEnvironmentStrings으로 메모리 블록을 삭제해주어야 한다. 
+
+## **07) pszCurDir**
+
+부모 프로세스가 자식 프로세스의 현재 드라이브와 디렉토리를 설정할 수 있도록 한다. NULL을 전달할 경우 자식을 생성한 어플의 현재 디렉토리로 설정되며, 이외의 값을 전달할 경우 '\0'으로 끝나는 문자열을 가리키는 포인터를 전달하면 된다. 
+
+## **08) psiStartInfo**
+
+STARTUPINFO나 STARTUPINFOEX 구조체를 가리키는 포인터를 지정한다. 이때 반드시 0으로 초기화 해주어야 쓰레기값으로 인한 오작동을 예방할 수 있다. 
+
+STARTUPINFO 구조체 멤버 중 dwFlags를 통해 어떤 멤버가 유효한 정보이고 어떤 정보가 무시되어도 괜찮은지 전달할 수 있다. 지정할 수 있는 플래그는 아래와 같다. 
+
+**STARTF_USESIZE**: dwXSize, dwYSize 멤버를 사용한다. 어플 윈도우의 넓이와 높이를 x, y 픽셀 단위로 지정한다. 
+
+**STARTF_USESHOWWINDOW**: wShowWindow 멤버를 사용한다. 어플의 메인 윈도우가 어떻게 나타날지 지정한다. 
+
+**STARTF_USEPOSITION**: dwX, dwY 멤버를 사용한다. 어플 윈도우의 좌상단 위치를 x, y 픽셀 단위로 지정할 수 있다. 
+
+**STARTF_USECOUNTCHARS**: dwXCountChars, dwYCountChars 멤버를 사용한다. 자식 콘솔 윈도우의 넓이와 높이를 문자 단위로 지정한다. 
+
+**STARTF_USEFILEATTRIBUTE**: dwFillAttribute 멤버를 사용한다. 자식 콘솔 윈도우의 글자색과 배경색을 지정한다.
+
+**STARTF_USEFILLATTRIBUTE**: hStdInput, hStdOutput,  hStdError 멤버를 사용한다. 콘솔 입출력 버퍼를 가리키는 핸들을 지정한다. 
+
+**STARTF_RUNFULLSCREEN**: x86 컴퓨터에서 콘솔 어플이 전체화면으로 시작되게 한다. 
+
+**STARTF_FORCEONFEEDBACK**: 새 프로세스 초기화 과정을 관찰하여 적합한 커서 모양으로 변경한다. 
+
+**STARTF_FORCEOFFFEEDBACK**: 커서를 어플 시작 커서로 변경하지 않는다. 
+
+여기서 언급되지 않은 STARTUPINFO 구조체의 멤버는 아래와 같다. 
+
+**cb**: STARTUPINFO 구조체의 바이트 크기를 담는다. STARTUPINFOEX와 같이 구조체를 확장하는 경우 버전 제어를 수행한다. 
+
+**lpReserved, lpReserved2, cbReserved2**: 예약된 멤버로 NULL 혹은 0으로 초기화 해야 한다. 
+
+**lpDesktop**: 어플이 수행될 데스크톱의 이름을 지정한다. NULL을 입력하면 현재 데스크톱과 연결된다. 
+
+**lpTitle**: 콘솔 윈도우의 타이틀을 지정하며 NULL이면 실행 파일명으로 지정된다. 
+
+## **09) ppiProcInfo**
+
+PROCESS_INFORMATION 구조체를 가리키는 포인터로 지정되며 함수 호출에 앞서 반드시 메모리를 할당해야 한다. CreateProcess 함수는 반환 직전에 해당 구조체의 멤버를 초기화해준다. 구조체 구조는 아래와 같다. 
+
+```c++
+typedef struct _PROCESS_INFORMATION {
+
+    HANDLE hProcess;
+    HANDLE hThread;
+    DWORD dwProcessId;
+    DWORD dwThreadId;
+
+} PROCESS_INFORMATION;
+```
+
+hProcess, hThread 멤버에 커널 오브젝트 핸들 값을 할당하게 된다. 프로세스 커널 오브젝트가 파괴되려면 프로세스가 종료되고, 부모 프로세스가 CloseHandle 을 호출하여 이 오브젝트 핸들을 삭제하여 사용 카운트를 0으로 만들어주어야 한다. 
 
 <br/>
 
-# **4. 프로세스의 종료**
+# **4. 프로세스의 종료 원인**
+
+**1) 주 스레드의 진입점 함수 반환**
+
+이 방법만이 유일하게 리소스의 적절한 해제를 보장하기 때문에, 프로세스가 종료되어야 할 때는 항상 이 방법을 통하도록 설계하는 것이 좋다. 주 스레드 진입점 함수가 반환될 경우 모든 자원을 적절히 해제한 후, 진입점 함수의 반환값을 인자로 ExitProcess를 호출하게 된다. 주 스레드 진입점 함수가 반환되면 아래와 같은 작업을 수행한다. 
+
+**-** C++ 오브젝트들이 파괴자를 이용해 적절하게 파괴된다.
+
+**-** 운영체제가 스레드 스택 용도로 할당한 메모리 공간을 적절하게 해제한다. 
+
+**-** 시스템이 진입점 함수의 반환 값으로 프로세스 종료 코드를 설정한다. 
+
+**-** 시스템이 프로세스 커널 오브젝트 Usage Count를 감소시킨다. 
 
 <br/>
 
-# **5. Child Process**
+**2) 현 프로세스 내 스레드의 ExitProcess 함수 호출**
+
+ExitProcess는 매개변수로 unsigned int 형식의 프로세스 종료 코드를 받고, 어떠한 값도 반환하지 않는다. ExitProcess, ExitThread를 호출하면 운영체제가 이에 대해 적절한 처리를 하기 때문에 해당 프로세스, 스레드와 관련된 모든 운영체제 리소스는 완벽하게 제거된다. 그러나 C/C++ 런타임이 관리하는 리소스에 대한 정리 작업은 수행되지 않는다. 
+
+
+**3) 현 프로세스, 혹은 타 프로세스 내 스레드의 TerminateProcess 함수 호출**
+
+다른 방법으로 프로세스를 종료시킬 수 없는 경우에 한해서만 TerminateProcess 함수를 호출해야 한다. 메모리 해제, 파일 닫기, Usage Count 감소, 사용자 및 GDI 오브젝트 제거 등 프로세스가 사용하던 리소스는 완벽하게 정리되지만, 메모리 정보를 디스크로 저장하는 것 등의 정리 작업은 이루어지지 않는다. 
+
+또, TerminateProcess는 비동기 함수이므로 함수 반환 시점에 맞춰 종료될 것이라는 걸 보장할 수 없다. 종료되는 시점을 정확히 알고 싶다면 WaitForSingleObject와 같은 함수에 프로세스의 핸들을 전달하는 것이 좋다. 
+
+**4) 프로세스 내 모든 스레드의 종료**
+
+프로세스 내 모든 스레드가 종료되면 운영체제가 프로세스를 자동으로 종료하며, 프로세스의 종료 코드는 마지막으로 종료된 스레드의 종료 코드로 설정된다. 
+
+# **5. 프로세스의 종료 과정**
+
+**1)** 프로세스 내 남아있던 스레드가 종료된다.
+
+**2)** 프로세스에 의해 할당된 모든 사용자 오브젝트, GDI 오브젝트가 삭제되고 Usage Count가 0이 된 모든 커널 오브젝트가 파괴된다. 
+
+**3)** 프로세스의 종료 코드가 STILL_ACTIVE에서 ExitProcess, TerminateProcess 호출 시 설정한 종료 코드로 변경된다. 
+
+**4)** 프로세스 커널 오브젝트의 상태가 시그널 상태로 변경되어 다른 스레드가 프로세스 종료 시까지 대기할 수 있게 된다.
+
+**5)** 프로세스 커널 오브젝트의 Usage Count가 1 감소한다. 
 
 <br/>
 
-# **6. 관리자가 표준 사용자로 수행되는 경우**
+# **6. Child Process**
+
+## **1) Child Process**
+
+다른 코드 블록을 수행해야 하는 상황에서, 함수나 서브루틴을 호출하여 수행할 수 있다. 함수를 호출할 경우 수행 중이던 코드는 함수가 반환될 때까지 수행을 멈추게 된다. 대부분의 경우 이러한 싱글태스킹 동기화를 사용하게 된다. 
+
+혹은 프로세스 내 새로운 스레드를 생성하여 해당 스레드가 작업을 수행하도록 코드 블록을 제공할 수도 있다. 이 역시 유용한 방법이지만 새로 생성한 스레드의 결과값을 확인하는 과정에서 동기화에 신경 써야 한다는 문제가 있다. 
+
+복잡한 작업을 수행하거나, 주소 공간을 보호하기 위한 목적으로 자식 프로세스를 생성하여 처리할 수도 있다. 이때 부모 프로세스의 주소 공간에 있는 자료를 건네주기 위해 DDE, OLE, 파이프,메일슬롯 등을 활용할 수 있다. 
+
+이때 자식 프로세스를 더 이상 참조하지 않고 독립적으로 동작시키고자 한다면
+CloseHandle(pi.hThread), CloseHandle(pi.hProcess) 를 이용해 바로 Usage Count를 감소시켜주는 것이 안전하다.
+
+<br/>
+
+# **7. 관리자 권한**
+
+## **1) 프로세스의 권한**
+
+보완 권한과 관련된 레벨 특성은 반드시 관리자 권한으로 수행되어야 하는 requireAdministrator,  가능한 높은 권한으로 수행되어야 하는 highestAvailable, 자신을 호출한 어플과 동일한 권한으로 수행되는 asInvoker 세가지로 나뉜다.
+
+상승된 권한으로 프로세스를 수행하고 싶은 경우 CreateProcess 대신 ShellExecuteEx 함수를 사용해야 한다. ShellExecuteEx 함수의 lpVerb 매개변수를 "runas"로 설정하고, lpFile에 상승된 권한으로 실행할 실행 파일의 경로를 지정하면 된다. 만약 사용자가 권한 상승 요청을 거절하면 ShellExecuteEx는 FALSE를 반환하고 GetLastError가 ERROR_CANCELLED를 반환한다. 
+
+
+## **2) 현재 권한 정보 확인**
+
+GetProcessElevation 함수는 권한 상승의 형태와 관리자 권한으로 수행되었는지 여부를 BOOL 값으로 반환한다. 이때 인자로 TOKEN_ELEVATION_TYPE 열거형을 받는데 그 값의 종류는 아래와 같다. 
+
+**TokenElevationTypeDefault**: 프로세스가 기본 사용자 권한으로 수행되었거나 UAC 기능이 꺼져있다.
+
+**TokenElevationTypeFull**: 프로세스가 성공적으로 권한 상승을 이뤘으며, 토큰은 필터된 토큰이 아니다.
+
+**TokenElevationTypeLimited**: 프로세스가 필터된 토큰에 의해 제한된 권한으로 수행되었다. 
 
 <br/>
 

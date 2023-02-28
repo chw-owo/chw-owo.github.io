@@ -1,5 +1,5 @@
 ---
-title: Procademy, Assignment 11) Memory Alloc Manager
+title: Procademy, Assignment 11) Memory Alloc Manager (1)
 categories: ProcademyAssignment
 tags: 
 toc: true

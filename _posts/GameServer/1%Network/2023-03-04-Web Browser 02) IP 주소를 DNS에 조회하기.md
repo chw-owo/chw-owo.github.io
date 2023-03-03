@@ -1,5 +1,5 @@
 ---
-title: Basic 01) Basic
+title: Web Browser 01) HTTP Request Message
 categories: 1%Network
 tags: 
 toc: true

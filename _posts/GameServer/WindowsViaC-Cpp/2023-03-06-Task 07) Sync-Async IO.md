@@ -321,7 +321,155 @@ HANDLE CreateNewCompletionPort(DWORD dwNumberOfConcurrentThreads )
 
 만약 포트 생성 작업만 하고 싶다면 위와 같이 래핑할 수 있다.  dwNumberOfConcurrentThreads를 0으로 전달할 경우 그 값은 머신에 설치된 CPU의 개수로 설정된다. 이와 같이 CPU 개수만큼의 스레드를 활용하게 되면 스레드 간의 컨텍스트 전환을 막을 수 있다.
 
+이 방법은 단일 장치에 대해 다수의 IO가 요청을 수행할 수 있으며, 특정 스레드가 IO 요청을 삽입하고 다른 스레드가 완료 통지를 수신할 수 있다. 소개된 것 중 유연성과 확장성이 가장 뛰어난 방법이다. 
 
-단일 장치에 대해 다수의 IO가 요청을 수행할 수 있다. 특정 스레드가 IO 요청을 삽입하고 다른 스레드가 완료 통지를 수신할 수 있다. 유연성과 확장성이 가장 뛰어난 방법이다. 
+<br/>
 
-## **5) IO Completion Port와 스레드 풀 관리**
+# **6. IO Completion Port의 구조**
+
+## **1) 전체 구조**
+
+IO 컴플리션 포트의 내부 동작 방식은 아래와 같다. IO 컴플리션 포트를 생성하면 윈도우 커널은 내부적으로 5개의 서로 다른 데이터 구조를 생성한다. 
+
+
+![image](https://user-images.githubusercontent.com/96677719/223046757-add673d7-daec-4a14-9b52-3ba98a2955a6.png)
+
+
+## **2) 1번째 구조 - 장치 관리 리스트**
+
+첫번째 데이터 구조는 IO 컴플리션 포트와 연계된 장치 관리 리스트이다. 장치를 IO 컴플리션 포트와 연결할 때는 위와 마찬가지로 CreateIoCompletionPort를 사용하는데, 아래와 같이 래핑하여 사용할 수도 있다. 
+
+```c++
+BOOL AssociateDeviceWithCompletionPort(
+    HANDLE hCompletionPort, HANDLE hDeice, DWORD dwCompletionKey)
+    {
+        HANDLE h = CreateIoCompletionPort(hDevice, 
+            hCompletionPort, dwCompletionKey, 0);
+            return(h == hCompletionPort);
+    }
+```
+AssociateDeviceWithCompletionPort는 IO 컴플리션 포트 생성 시 내부적으로 관리되고 있는 장치 리스트에 새로운 항목을 추가한다. 이 함수를 호출할 때 앞서 생성해둔 IO 컴플리션 포트 핸들과 장치 핸들, 그리고 컴플리션 키를 전달한다. 새로운 장치를 IO 컴플리션 포트와 연계시킬 때마다 시스템은 IO 컴플리션 포트 내부 데이터 구조인 장치 리스트에 새로운 항목을 추가한다. 
+
+## **3) 2번째 구조 - IO 컴플리션 큐**
+
+IO 컴플리션 포트를 구성하는 두번째 데이터 구조는 IO 컴플리션 큐이다. 장치에 대한 비동기 IO 요청이 완료되면 시스템은 연계된 IO 컴플리션 포트를 탐색한 후, 있을 경우 IO 컴플리션 큐에 완료 통지 항목을 삽입한다. 각 항목은 송수신 바이트 수와 컴플리션 키, OVERLAPPED 구조체 포인터, 에러코드를 포함한다. 
+
+소켓으로 데이터를 전송하는 경우처럼 실제로 데이터가 전달되었는지 굳이 확인할 필요가 없을 때는 완료 통지를 컴플리션 큐에 삽입하지 않을 수도 있다. OVELAPPED 구조체 hEvent 멤버를 이벤트 핸들 값에 1 bit를 OR한 값으로 지정하면 된다. 
+
+서비스 어플리케이션이 초기화 되는 동안 CreateNewCompletionPort와 같은 함수를 호출하여 IO 컴플리션 포트를 생성했다면 클라이언트 요청을 처리하는 스레드 풀도 생성해야 한다. 일반적으로는 머신의 CPU 개수 * 2 개의 스레드를 생성한다. 
+
+풀 내의 모든 스레드는 동일한 스레드 함수를 수행하도록 구성하는 것이 좋다. 이들은 초기화 작업 이후 루프로 진입하여 애플리케이션이 종료될 때 루프를 탈출하도록 구성된다. 루프 내에서는 비동기 IO 작업이 완료되어 IO 컴플리션 포트를 통해 완료 통지가 전달될 때 이를 바로 처리할 수 있도록 스레드를 대기 상태로 유지해야 하는데, 여기에 GetQueuedCompletionStatus 함수를 사용한다. 
+
+```c++
+BOOL GetQueuedCompletionStatus(
+    HANDLE hCompletionPort,
+    PDWORD pdwNumberOgBytesTransferred,
+    PULONG_ PTR pCompletionKey,
+    OVERLAPPED** ppOverlapped,
+    DWORD dwMilliseconds
+);
+```
+hCompletionPort로 대기를 수행하고 싶은 컴플리션 포트 핸들을 전달하는데, 일반적으로는 하나의 IO 컴플리션 포트를 통해 비동기 IO 요청에 대한 완료 통지를 처리한다. 이 함수를 호출한 스레드는 컴플리션 큐에 새로운 항목이 삽입될 때까지 대기 상태로 유지하며 dwMilliseconds로 타임아웃 값을 지정할 수 있다. 
+
+## **3) 3번째 구조 - 대기 스레드 큐**
+
+스레드 풀 내의 여러 스레드들이 각기 GetQueuedCompletionStatus를 호출하면 호출한 스레드의 ID 값이 대기 스레드 큐에 삽입되며 이를 통해 IO 컴플리션 포트 커널 오브젝트가 어떤 스레드들이 완료 통지를 처리할 것인지 알 수 있게 된다. GetQueuedCompletionStatusEx를 호출하면 여러개의 완료 통지를 한번에 가져올 수도 있다. 
+
+IO 컴플리션 큐에 항목이 추가되면 컴플리션 포트는 대기 스레드 큐에 있는 스레드 중 하나를 깨우고 이 스레드는 삽입된 항목으로부터 송수신 바이트 수, 컴플리션 키, OVERLAPPED 구조체 주소를 가져온다. IO 컴플리션 큐는 선입선출 방식으로 항목을 삽입, 제거하고 호출되는 스레드는 후입선출 방식으로 깨어난다. 
+
+이는 성능 향상을 위한 동작 방식으로, 완료 통지가 느리게 도달하면 단일 스레드가 모든 완료 통지를 처리할 수 있으며 나머지 스레드는 계속 대기 상태를 유지할 수 있게 된다. 스케줄되지 않은 스레드들이 사용하는 메모리는 디스크로 내보낼 수 있으며 프로세서의 캐시를 비울 수 있다. 
+
+컴플리션 포트와 연계된 비동기 요청을 장치로 전달하면 요청이 동기적으로 처리되어도 결과를 컴플리션 포트로 전달한다. 이는 일관된 프로그래밍을 할 수 있도록 돕지만 완료 통지를 삽입하고 다른 스레드가 큐로부터 항목을 가져오는 과정에서 성능에 저해시킬 수 있다. 이를 막기 위해서는 동기적으로 수행되는 작업에 한해 FILE_SKIP_COMPLETION_PORT_ON_SUCCESS 플래그를 인자로 SetFileCompletionNotificationMode 함수를 호출하면 된다.
+
+## **4) 4/5번째 구조 - 릴리즈/일시정지 스레드 리스트**
+
+IO 컴플리션 포트가 스레드의 수행을 재개시키면 릴리즈 스레드 리스트에 깨어난 스레드의 ID를 기록한다. 이렇게 함으로써 컴플리션 포트는 어떤 스레드가 깨어났는지, 이 스레드의 수행 상황이 어떻게 되는지 지속적으로 확인할 수 있다. 스레드가 대기 상태로 진입할 경우 릴리즈 스레드 리스트로부터 ID 값을 빼내어 일시정지 스레드 리스트로 항목을 옮기게 된다. 
+
+IO 컴플리션 포트는 동시 수행 가능 스레드 개수만큼 릴리즈 리스트 항목 수를 유지하려고 한다. 만일 스레드가 대기 상태로 전환되면 컴플리션 포트는 대기 중이던 스레드 중 하나를 다시 릴리즈 리스트로 옮겨온다. 또한 대기 상태로 전환되어 일시 정지 리스트에 있던 스레드가 수행을 재개하면 이 경우에도 릴리즈 리스트로 옮겨온다. 그러다보면 일시적으로 수행 가능한 스레드 개수를 초과하는 상황이 발생한다.  
+
+이런 상황이 되면 IO 컴플리션 포트는 동시 수행 스레드 개수가 설정한 개수 이하로 떨어질 때까지 새로운 스레드를 깨우지 않는다. 이러한 동작 방식을 고려한다면 스레드 풀에 존재하는 스레드 개수는 동시 수행 가능한 스레드 개수보다 큰 값으로 유지하는 것이 좋다. 
+
+## **5) 스레드 풀**
+
+스레드 풀에 몇개의 스레드를 유지하는 것이 좋은지 알아보기 전에 고려해야 될 것이 두가지 있다. 첫째로, 애플리케이션이 초기화되는 시점에는 가능한 적은 수의 스레드만 생성되기를 원할 것이다. 둘째로, 너무 많은 스레드를 생성하면 자원이 낭비될 수 있으므로 가능한 스레드 최대 개수를 제한하고 싶을 것이다. 두가지 가정 아래에서 적절한 수를 실험을 통해 얻어내야 할 것이다. 
+
+아래 코드는 스레드 풀 함수에서 어떤 작업을 수행해야 하는 지에 대한 예시를 보여준다. 
+
+```c++
+LONG g_nThreadsMin;
+LONG g_nThreadsMax;
+LONG g_nThreadsCrnt;
+LONG g_nThreadsBusy;
+
+DWORD WINAPI ThreadPoolFunc(PVOID pv){
+
+    // 스레드가 풀 내로 진입했다.
+    InterlockedIncrement(&g_nThreadsCrnt);
+    InterlockedIncrement(&g_nThreadsBusy);
+
+    for(BOOL bStayInPool = TRUE; bStayInPool;)
+    {
+        // 스레드가 수행을 멈추고 
+        // 작업을 수행하기 위해 대기하고 있다.
+        InterlockedDecrement(&g_nThreadsBusy);
+        BOOL bOk = GetQueuedCompletionStatus(...);
+        DWORD dwIOError = GetLastError();
+
+        int nThreadsBusy = InterlockedIncrement(&g_nThreadsBusy);
+
+        if(nThreadsBusy == m_nThreadsCrnt) {
+            if(nThreadsBusy < m_nThreadsMax) {
+                if(GetCPUUsage < 75) {
+
+                    // 새로운 스레드를 풀에 추가한다. 
+                    CloseHandle(chBEGINTHREADEX(...));
+                }
+            }
+        }
+
+        // 대기중이던 스레드가 타임아웃을 유발하였다. 
+        if(!bOk && (dwIOError == WAIT_TIMEOUT)) {
+
+            bStayInPool = FALSE;
+        }
+
+        // 스레드가 작업 수행을 마쳤을 때 
+        if(bOk || (po != NULL)) {
+            ...
+            if(GetCPUUsage() > 90){
+                if(g_nThreadsCrnt < g_nThreadsMin){
+                    
+                    // 스레드를 풀로부터 제거한다
+                    bStayInPool = FALSE;
+                }
+            }
+        }
+    }
+
+    // 스레드가 풀로부터 제거된다.
+    InterlockedDecrement(&g_nThreadsBusy);
+    InterlockedDecrement(&g_nThreadsCrnt);
+    return 0;
+}
+```
+
+스레드 풀에는 적어도 하나 이상의 스레드가 존재하도록 하여 클라이언트가 정상적으로 수행될 수 있도록 해주어야 한다. 대부분의 서비스는 스레드 풀 동작 방식을 제어할 수 있도록 최소, 최대 스레드 개수 및 CPU 사용률 임계값 등에 대해 제어할 수 있도록 해준다. 위 수도 코드는 예시일 뿐이며 서비스의 구조에 맞춰 적절히 수정되어야 한다. 
+
+이전에 말했듯이 윈도우 비스타 이전에는 특정 스레드에 의해 삽입된 IO 요청은 스레드 종료 시 모두 취소되므로, 컴플리션 포트와 연계된 장치에 대해 IO 요청을 수행한 스레드는 작업이 완료될 때까지 반드시 살아있지 않으면 해당 스레드가 요청한 모든 작업이 취소되었다. 하지만 비스타 이후부터는 특정 스레드가 IO 작업을 요청하고 바로 종료되는 경우에도 요청된 IO 작업은 계속해서 수행되었으며 그 결과도 컴플리션 포트에 정상적으로 통지된다. 
+
+## **6) IO 완료 통지**
+
+
+```c++
+BOOL PostQueuedCompletionStatus(
+    HANDLE hCompletionPort,
+    DWORD dwNumBytes,
+    ULONG_PTR CompletionKey,
+    OVERLAPPED* pOverlapped
+);
+```
+IO 컴플리션 포트틑 장치 IO를 수행할 때 뿐 아니라 스레드 간 통신을 수행할 때도 유용하게 활용될 수 있다. PostQueuedCompletionStatus 함수를 호출하면 완료 통지를 IO 컴플리션 큐에 삽입해주는데, 이를 호출해 삽입한 항목을 가져오는 경우에도 GetQueuedCompletionStatus는 IO 요청이 성공적으로 완료된 것처럼 TRUE를 반환한다. 
+
+위 함수는 스레드 풀 내의 스레드들과 통신을 수행할 때 유용하게 사용할 수 있다. 예를 들어 사용자가 서비스를 종료할 경우 수행 중인 모든 스레드를 깔끔하게 종료시키는 것이 좋지만, 스레드가 컴플리션 포트를 대기 중이기 때문에 특별한 IO 요청이 없는 한 대기 상태에서 벗어날 수 없다. 이때 위 함수를 스레드 개수만큼 호출하면 스레드는 수행을 재개할 것이고, GetQueuedCompletionStatus 반환 값을 확인함으로써 종료 절차를 진행할 수 있게 된다. 
+
+이러한 기법을 사용할 떄 주의해야 할 것은, 스레드 종료 중에 GetQueuedCompletionStatus를 재호출하게 되면 풀의 후입선출 방식 때문에 문제가 생길 수 있다는 것이다. 이 경우 부가적인 동기화 방법을 추가하여 풀 내의 모든 스레드가 완료 통지를 한번씩 각기 수신라도록 해주어야 한다. 그러지 않으면 하나의 스레드가 여러번의 완료 통지를 수신할 수도 있다. 

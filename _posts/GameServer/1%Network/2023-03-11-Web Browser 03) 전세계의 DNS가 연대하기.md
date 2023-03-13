@@ -1,5 +1,5 @@
 ---
-title: Web Browser 01) HTTP Request Message
+title: Web Browser 03) 전세계의 DNS가 연대하기
 categories: 1%Network
 tags: 
 toc: true

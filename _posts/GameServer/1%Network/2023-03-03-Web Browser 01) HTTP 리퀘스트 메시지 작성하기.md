@@ -10,8 +10,6 @@ toc_sticky: true
 
 # **0. Intro**
 
-## **1) 워밍업 지식**
-
 **-** www.naver.com에서 www는 웹 서버에 붙인 이름이다.
 
 **-** Worle Wide Web은 프로토콜을 나타내는 것이 아니라 웹을 설계한 사람이 최초로 만든 브라우저 겸 HTML 편지기에 붙였던 이름이다.

@@ -1,5 +1,5 @@
 ---
-title: Basic 01) Error Handling
+title: DLL 02) DLL Advanced
 categories: WindowsViaC-Cpp
 tags: 
 toc: true

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 26) OOP, FixedUpdate
+title: Procademy, Q1, 28) Window API - 문자열
 categories: ProcademyReview
 tags: 
 toc: true

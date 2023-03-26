@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 15 - 1) Window Console Shooting Game
+title: Procademy, Q1, 15 - 1) Console Shooting Game
 categories: ProcademyReview
 tags: 
 toc: true

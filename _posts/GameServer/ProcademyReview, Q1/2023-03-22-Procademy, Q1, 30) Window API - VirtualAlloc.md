@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q1, 30 - 1) Window API - VirtualAlloc
+title: Procademy, Q1, 30) Window API - VirtualAlloc
 categories: ProcademyReview
 tags: 
 toc: true

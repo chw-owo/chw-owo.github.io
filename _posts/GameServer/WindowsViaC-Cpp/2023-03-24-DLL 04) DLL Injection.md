@@ -102,7 +102,37 @@ HANDLE hThread = CreateRemoteThread(hProcessRemote, NULL, 0,
                         pfnThreadRtn, L"C:\\MyLib.dll", 0, NULL);
 ```
 
-두번째 문제는 DLL 경로명 문자열과 관련된다. C:\\\\MyLib.dll는 
+두번째 문제는 문자열과 관련된다. "C:\\\\MyLib.dll" 문자열은 CreateRemoteThread를 호출하는 프로세스의 주소 공간에 위치하고 있기에, LoadLibrary가 이 문자열에 접근할 수 경우 접근 위반 예외를 유발하며 "호출한 프로세스"가 아니라 "원격 프로세스"가 종료된다. 따라서 이 경우 VirtualAllocEx, VirtualFreeEx를 사용해 다른 프로세스 주소 공간에 메모리를 할당하고, ReadProcessMemory, WriteProcessMemory를 통해 해당 주소 공간에 값을 읽고 써야 한다. 예제는 아래와 같다. 
+
+```c++
+hProcess = OpenProcess(
+    PROCESS_QUERY_INFORMATION   | // 프로세스 정보 획득
+    PROCESS_CREATE_THRAED       | // CreateRemoteThread 허용
+    PROCESS_VM_OPERATION        | // VirtualAlloc/FreeEx 허용
+    PROCESS_VM_WRITE            | // WriteProcessMemory 허용
+    FALSE, dwProcessId;
+)
+if(hProcess = NULL) __leave;
+
+int cch = 1 + lstrlenW(pszLibFile);
+int cb = cch * sizeof(wchar_t);
+
+// DLL 경로명 저장을 위한 공간 할당
+pszLibFileRemote = (PWSTR) VirtualAllocEx(
+    hProcess, NULL, cb, MEM_COMMIT, PAGE_READWRITE);
+if(pszLibFileRemote = NULL) __leave;
+
+// 원격 프로세스 주소 공간으로 DLL 경로명 복사
+if(!WriteProcessMemory(hProcess, pszLibFileRemote, 
+    (PVOID) pszLibFile, cb, NULL)) __leave;
+
+pfnThreadRtn = (PTHREAD_START_ROUTINE) GetProcAddress(
+        GetModuleHandle(TEXT("Kernel32")), "LoadLibraryW");
+if(pfnThreadRtn == NULL) __leave;
+
+hThread = CreateRemote
+WaitForSingleObject(hThread, INFINITE);
+```
 
 <br/>
 

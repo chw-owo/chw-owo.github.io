@@ -105,6 +105,7 @@ HANDLE hThread = CreateRemoteThread(hProcessRemote, NULL, 0,
 두번째 문제는 문자열과 관련된다. "C:\\\\MyLib.dll" 문자열은 CreateRemoteThread를 호출하는 프로세스의 주소 공간에 위치하고 있기에, LoadLibrary가 이 문자열에 접근할 수 경우 접근 위반 예외를 유발하며 "호출한 프로세스"가 아니라 "원격 프로세스"가 종료된다. 따라서 이 경우 VirtualAllocEx, VirtualFreeEx를 사용해 다른 프로세스 주소 공간에 메모리를 할당하고, ReadProcessMemory, WriteProcessMemory를 통해 해당 주소 공간에 값을 읽고 써야 한다. 예제는 아래와 같다. 
 
 ```c++
+
 hProcess = OpenProcess(
     PROCESS_QUERY_INFORMATION   | // 프로세스 정보 획득
     PROCESS_CREATE_THRAED       | // CreateRemoteThread 허용
@@ -130,23 +131,114 @@ pfnThreadRtn = (PTHREAD_START_ROUTINE) GetProcAddress(
         GetModuleHandle(TEXT("Kernel32")), "LoadLibraryW");
 if(pfnThreadRtn == NULL) __leave;
 
-hThread = CreateRemote
+hThread = CreateRemoteThread(
+    hProcess, NULL, 0, pfnThreadRtn, pszLibFileRemote, 0, NULL);
+if(hThread == NULL) __leave;
+
 WaitForSingleObject(hThread, INFINITE);
+
 ```
 
 <br/>
 
-# **5. 트로얀 DLL을 이용한 DLL 인젝션**
+# **5. 그 외 DLL 인젝션**
+
+그 외에도 프로세스가 로드해야 하는 DLL을 다른 파일로 변경하여 인젝션할 수 있다. 예를 들어 A.dll을 로드할 것이라면 인젝션 하고자 하는 DLL의 이름을 A.dll로 바꾸고 이전의 A.dll은 다른 파일명으로 바꾸는 것이다. 이때, 인젝션 하려는 A.dll 파일은 반드시 이전의 A.dll이 export 했던 것과 동일한 심벌을 export 해야 한다. 그러나 이 방법은 DLL 버전 차이를 극복할 수 없으므로 권장하지 않는다.
+
+또, 디버거는 디버기 프로세스에 대해 특별한 작업을 수행할 수 있는데 이를 이용할 수도 있다. 디버기가 주소 공간을 구성하면 시스템은 주 스레드 수행 직전 디버거에게 로드되었음을 자동으로 알려준다. 이때 디버거는 디버기의 주소 공간 내에 WriteProcessMemory 등으로 코드를 써넣을 수 있으며, 디버기 스레드의 CONTEXT 구조체를 수정함으로써 주 스레드가 해당 코드를 수행하도록 할 수 있다.
+
+그러나 이 경우 CPU 종류별로 다른 코드를 작성해야 하며, CPU 플랫폼을 바꿀 경우 소스 코드를 수정해서 디버기가 수행하는 코드를 기계어 명령으로 하드코딩 해야 한다. 이 경우 디버거와 디버기가 완전히 결합되므로 디버거가 종료되면 윈도우는 디버기도 같이 종료해버린다. DebugSetProcessKillOnExit에 FALSE를 전달하여 이러한 동작을 변경할 순 있으나 그럼에도 좋은 구현 방법은 아니다. 
 
 <br/>
 
-# **6. 디버거를 이용한 DLL 인젝션**
+# **6. CreateProcess를 이용한 코드 인젝션**
+
+DLL을 인젝션하고자 하는 프로세스를 수행 중인 다른 프로세스 내에서 생성하는 경우라면 코드 인젝션을 쉽게 수행할 수 있다. 부모 프로세스에서 정지된 자식 프로세스의 주 스레드 핸들로 수행해야 하는 코드를 변경하여, 자식 프로세스의 동작에 영향을 미치지 않으면서도 프로세스 상태를 바꾸는 것이다. 이때 스레드의 instruction pointer를 변경하면 메모리에 매핑된 어떤 코드라도 수행할 수 있다. 
+
+이를 위해선 우선 자식 프로세스를 정지 상태로 생성하고 exe 모듈의 파일 헤더로부터 주 스레드 시작 메모리 주소를 얻어와 해당 기계어 명령을 저장한다. 그 후 LoadLibrary 함수를 호출하여 DLL을 로드하는 명령의 기계어 코드를 그 메모리 주소에 덮어쓰고 자식 프로세스의 수행을 재개한다. 그리고 앞서 저장한 기계어 명령을 주 스레드의 시작 메모리 주소로 복구하면 프로세스가 시작 주소로부터 수행을 재개할 수 있다. 
+
+이 기법을 사용할 경우 첫째로 애플리케이션 수행 전에 프로세스의 주소 공간에 접근할 수 있으며, 둘째로 부모 프로세스가 디버거가 아니므로 DLL이 인젝션 된 애플리케이션을 더 쉽게 디버깅할 수 있다. 마지막으로, 콘솔/ GUI 형태 모두에 대해 적용이 가능하다. 단, 한계 역시 존재하는데 우선 인젝션 하려는 프로세스가 부모 프로세스에 의해 수행되어야만 하며, CPU 플랫폼에 독립적이지 못하기에 CPU가 바뀌면 변경 작업이 필요하다. 
 
 <br/>
 
-# **7. CreateProcess를 이용한 코드 인젝션**
+# **7. API 후킹**
 
-<br/>
+프로세스 주소 공간에 DLL을 인젝션 하면 어떤 작업을 수행하는지는 알 수 있지만, 상세한 정보까지 얻을 순 없다. 어떤 함수를 수행하는지 알거나 윈도우 함수 동작 방식을 변경하고 싶다면 API 후킹이 필요하다. 예를 들어 ExitProcess를 후킹하여 DLL들이 DLL_PROCESS_DETACH 통지를 받기 전에 프로세스 종료 사실을 미리 알고 정리 작업을 수행하도록 수정할 수 있다. 
 
-# **8. API 후킹**
+우선 코드 덮어쓰기로 API를 후킹할 수 있다. 후킹하려는 함수 주소를 메모리에서 찾고, 시작 몇 바이트를 다른 곳으로 복사한 뒤 그곳에 JUMP CPU 명령을 덮어써서 대체 함수로 이동하도록 만든다. 이때 대체 함수는 후킹하려는 함수와 동일한 매개변수, 반환형, 호출 규격을 지켜야 한다. 후킹을 해제하고 싶다면 복사했던 시작 부분으로 다시 대체하면 된다.
 
+그러나 이 방법은 CPU 의존적이며, 선점형 다중스레드 환경에서 정상 동작하지 않는다. 시작 부분에 코드를 덮어쓰는데 일정 시간이 걸리는데 그 동안 다른 스레드가 동일 함수를 호출할 수 있기 때문이다. 따라서 이는 단 하나의 스레드만 함수를 호출할 때 정상 동작한다. 16bit 윈도우 환경에서는 문제가 없지만 그 외에는 사용하지 말아야 한다. 
+
+또 다른 방법은 모듈의 import section을 변경하는 것이다. 모듈이 함수를 호출하면 스레드는 모듈의 import section으로부터 import된 함수의 주소를 얻어와, 해당 주소로 이동하는데, 이 주소를 변경한다. 이는 동적 링킹과 import section에 대해 알아야 하지만, CPU 독립적이고 함수 코드 변경도 필요 없고 스레드 동기화 문제도 생기지 않는 장점이 있다. 
+
+```c++
+PROC pfnOrigin = GetProcAddress(
+    GetModuleHandle("Kernel32"), "ExitProcess");
+HMODULE hmodCaller = GetModuleHandle("Database.exe");
+
+ReplaceIATEntryInOneMod(
+    "Kernel32.dll", // 함수를 포함하는 모듈 (ANSI)
+    pfnOrigin,      // 후킹하려는 함수의 주소
+    MyExitProcess,  // 호출하고 싶은 새 함수의 주소
+    hmodCaller      // 새 함수를 호출하려는 모듈의 핸들
+);
+```
+
+```c++
+ReplaceIATEntryInOneMod( PCSTR pszCalleeModName, 
+    PROC pfnCurrent, PROC pfnNew, HMODULE hmodCaller )
+{
+    ULONG ulSize;
+    PIMAGE_IMPORT_DESCRIPTOR pImportDesc = NULL;
+
+    __try {
+        pImportDesc = (PIMAGE_IMPORT_DESCRIPTOR) 
+            ImageDirectoryEntryToData (
+                hmodCaller, TRUE, IMAGE_DIRECTORY_ENTRY_IMPORT, &ulsize);
+    }
+    __except (InvalidReadExceptionFilter(GetExceptionInformation())){ }    
+
+    if( pImportDesc == NULL ) return;
+
+    for(; pImportDesc->Name; pImportDesc++ )
+    {
+        PSTR pszModName = (PSTR) ((PBYTE)hmodCaller + pImportDesc->Name);
+        if(lstrcmpiA(pszModName, pszCalleeModName) == 0){
+            
+            PIMAGE_THUNK_DATA pThunk = (PIMAGE_THUNK_DATA)
+                ((PBYTE) hmodCaller + pImportDesc->FirstThunk);
+            
+            for(; pThunk->ul.Function; pThunk++)
+            {
+                PROC* ppfn = (PROC*) &pThunk->ul.Function;
+                if (*ppfn == pfnCurrent)
+                {
+                    if(!WriteProcessMemory(GetCurrentProcess(), 
+                            ppfn, &pfnNew, sizeof(pfnNew), NULL)
+                        && (ERROR_NOACCESS == GetLastError()))
+                        {
+                            DWORD dwOldProtect;
+                            if(VirtualProtect(ppfn, sizeof(pfnNew), 
+                                        PAGE_WRITECOPY, &dwOldProtect))
+                            {
+                                WriteProcessMemory(GetCurrentProcess(), 
+                                    ppfn, &pfnNew, sizeof(pfnNew), NULL);
+
+                                VirtualPotect(ppfn, sizeof(pfnNew), 
+                                        PAGE_WRITECOPY, &dwOldProtect);
+                            }
+                        }
+                    
+                    return;
+                }
+            }
+        }
+    }
+}
+```
+
+위 코드는 이 방법의 예제이다. ReplaceIATEntryInOneMod는 ImageDirectoryEntryToData 함수에 IMAGE_DIRECTORY_ENTRY_IMPORT를 전달하여 hmodCaller 모듈 내의 import section 위치를 가져오고, 이 섹션이 없는 경우 NULL을, 있을 경우 import descriptor 배열 주소를 반환한다. 이후엔 descriptor를 순회하며 DLL 모듈 이름을 비교하여 심벌을 찾는다. 이때 섹션 내 모든 문자열은 ANSI임에 유의한다.
+
+만약 ToolHelp등의 탐색기로 모듈 목록을 가져온다면 목록 순회 중 FreeLibrary가 호출되면서 목록 정보를 정확하게 가져오지 못할 수 있다. 또, borland, delphi 등 일부 컴파일러는 단일 모듈에 대해 여러개의 디스크립터를 생성하기도 하므로 이땐 심벌을 찾았다고 바로 루프를 종료해선 안된다. 만일 에러가 발생하면 VirtualProtect로 보호 특성을 임시 변경하고 함수를 후킹한 다음 다시 복구시킨다. 
+
+이에 더해 모든 모듈의 함수를 가로채려면 위 함수를 모듈별로 각기 호출해야 한다. 이 이후 LoadLibrary로 로드한 DLL들, GettProcAddress로 얻은 주소 등은 기존 함수를 호출하므로 이 함수들도 후킹이 필요하다. 또, 새로 로드된 모듈이 해당 함수를 호출하는 DLL을 암시적으로 링크할 수도 있다. 이 경우 DLL의 IAT를 갱신할 수 없으므로, 대신 명시적으로 로드될 때 모든 모듈을 갱신하여 암시적 로드된 모듈도 함께 갱신되도록 하면 된다.  

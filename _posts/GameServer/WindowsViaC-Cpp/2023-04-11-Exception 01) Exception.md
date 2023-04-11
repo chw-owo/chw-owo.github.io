@@ -173,7 +173,63 @@ finally가 수행되는 상황은 제어 흐름이 자연스럽게 이동한 상
 
 ## **1) 예외 필터와 예외 처리기**
 
+```c++
+__try
+{
+
+}
+___except(exception filter)
+{
+
+}
+```
+
+try 블록은 finally 블록 혹은 except 블록을 가져야 하나 둘을 동시에 가질 수는 없다. 종료처리기와 달리 예외처리기는 OS에 의해 직접 수행되며, 컴파일러는 예외 필터 평가와 같은 최소한의 작업만 수행한다. 예외 처리기는 종료 처리기와 달리 try 블록 내에 return, goto 등을 사용해도 성능 저하가 생기지 않는다. 
+
+예외가 발생하면 except 블록으로 제어를 이동하여 예외 필터 식을 평가하며, 이 값은 EXCEPTION_EXECUTE_HANDLER(1), EXCEPTION_CONTINUE_EXECUTION(0), EXCEPTION_CONTINUE_SEARCH(-1) 중 하나이다. 
+
 ## **2) EXCEPTION_EXECUTE_HANDLER**
+
+EXCEPTION_EXECUTE_HANDLER는 이 예외 처리를 위한 코드가 준비되어 있고 이를 바로 수행하려는 상황에서 사용된다. 이때 시스템은 글로벌 언와인드를 수행한 후 except 블록 내 코드를 수행한다. 이후 시스템은 예외가 처리되었다고 생각하여 사용자에게 예외 상황을 보여주지 않고 except 블록의 바로 다음 명령부터 수행을 재개한다. 이를 효율적으로 사용한 예제는 아래와 같다. 
+
+```c++
+int RobustHowManyToken(const char* str)
+{
+    int nHowManyTokens = -1;
+    char* strTemp = NULL;
+
+    __try
+    {
+        strTemp = (char*)malloc(strlen(str) + 1);
+        strcpy(strTemp, str);
+        char* pszToken = strtok(strTemp, " ");
+        for(; pszToken != NULL; pszToken = strtok(NULL, " "))
+            nHowManyTokens++;
+        nHowManyTokens++;
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) { }
+
+    free(strTemp);
+    return(nHowManyTokens);
+}
+```
+```c++
+PBYTE RobustMemDup(PBYTE pbSrc, size_t cb)
+{
+    PBYTE pbDup = NULL;
+    __try
+    {
+        pbDup = (PBYTE)malloc(cb);
+        memcpy(pbDup, pbSrc, cb);
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER)
+    {
+        free(pbDup);
+        pbDup = NULL;
+    }
+    return(pbDup);
+}
+```
 
 ## **3) EXCEPTION_CONTINUE_EXECUTION**
 
@@ -186,6 +242,8 @@ finally가 수행되는 상황은 제어 흐름이 자연스럽게 이동한 상
 ## **7) UnhandledExceptionFilter 내부**
 
 ## **8) 소프트웨어 예외**
+
+CPU가 발생시킨 예외를 하드웨어 예외, OS나 애플리케이션이 자체적으로 발생시킨 예외를 소프트웨어 예외라고 한다. 
 
 <br/>
 

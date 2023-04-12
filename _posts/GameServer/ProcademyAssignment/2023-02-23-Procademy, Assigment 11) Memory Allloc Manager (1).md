@@ -132,9 +132,9 @@ vector<AllocInfo> allocInfos;
 
 AllocInfo::AllocInfo(void* ptr, int size, int line, const char* filename)
 {
-	this->_ptr = ptr; 
-	this->_size = size;
-	this->_line = line;
+	_ptr = ptr;
+	_size = size;
+	_line = line;
 	strcpy_s(_filename, FILE_NAME, filename);
 	g_totalAllocInfo.size += size;
 	g_totalAllocInfo.count++;
@@ -142,7 +142,7 @@ AllocInfo::AllocInfo(void* ptr, int size, int line, const char* filename)
 
 bool AllocInfo::operator==(void* ptr)
 {
-	return(this->_ptr == ptr);
+	return(_ptr == ptr);
 }
 
 void PrintAlloc(void)
@@ -153,7 +153,7 @@ void PrintAlloc(void)
 	printf("Total Alloc Count : %d\n\n", g_totalAllocInfo.count);
 
 	vector<AllocInfo>::iterator it;
-	
+
 	for (it = allocInfos.begin(); it != allocInfos.end(); it++)
 	{
 		printf("Not Release Memory : [%p] %d Bytes\n", (*it)._ptr, (*it)._size);
@@ -163,9 +163,3 @@ void PrintAlloc(void)
 	printf("--------------------------------------\n");
 }
 ```
-
-<br/>
-
-# **질문**
-
-template를 사용하면 함수 선언 뿐 아니라 정의도 헤더파일에서 해주어야 하는 것으로 아는데 혹시 template을 쓰면서도 cpp와 header를 깔끔하게 분리할 수 있는 좋은 방법은 없는지...

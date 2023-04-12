@@ -16,24 +16,7 @@ bmp 파일 두개를 불러와서 알파 블렌딩하고 그 결과물 파일을
 
 ```c++
 #include <iostream>
-#include <stdlib.h>
 #include <windows.h>
-
-void OpenFile_rb(char filename[], FILE** file);
-void OpenFile_wb(char filename[], FILE** file);
-void CloseFile(FILE** file);
-
-void ReadBmpHeader(FILE** file, BITMAPFILEHEADER* bf, BITMAPINFOHEADER* bi);
-void ReadBmpData(FILE** file, int size, char* output);
-void WriteBmpFile(FILE** output, BITMAPFILEHEADER* bf, BITMAPINFOHEADER* bi, int size, char* data);
-
-void AlphaBlending();
-
-int main()
-{
-	AlphaBlending();
-	return 0;
-}
 
 void AlphaBlending()
 {
@@ -42,6 +25,7 @@ void AlphaBlending()
 	char fileName2[] = "sample2.bmp";
 	char resultFileName[] = "result.bmp";
 
+	errno_t ret;
 	FILE* buffer1 = nullptr;
 	FILE* buffer2 = nullptr;
 	FILE* result = nullptr;
@@ -51,22 +35,29 @@ void AlphaBlending()
 	// 1. Read Bitmap File
 
 	// 1) Get File Header
-	OpenFile_rb(fileName1, &buffer1);
-	ReadBmpHeader(&buffer1, &bf, &bi);
+	ret = fopen_s(&buffer1, fileName1, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", fileName1, ret);
+
+	fread(&bf, sizeof(bf), 1, buffer1);
+	fread(&bi, sizeof(bi), 1, buffer1);
 	size = (bi.biWidth * bi.biHeight * bi.biBitCount) / 8;
 
-	char* pImageBuffer1 = static_cast<char*>(malloc(size));;
-	char* pImageBuffer2 = static_cast<char*>(malloc(size));;
-	char* pImageBlend = static_cast<char*>(malloc(size));;
+	char* pImageBuffer1 = static_cast<char*>(malloc(size));
+	char* pImageBuffer2 = static_cast<char*>(malloc(size));
+	char* pImageBlend = static_cast<char*>(malloc(size));
 
 	// 2) Get File1 Data
-	ReadBmpData(&buffer1, size, pImageBuffer1);
-	CloseFile(&buffer1);
+	fread(pImageBuffer1, size, 1, buffer1);
+	fclose(buffer1);
 
 	// 3) Get File2 Data
-	OpenFile_rb(fileName2, &buffer2);
-	ReadBmpData(&buffer2, size, pImageBuffer2);
-	CloseFile(&buffer2);
+	ret = fopen_s(&buffer2, fileName2, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", fileName2, ret);
+
+	fread(pImageBuffer2, size, 1, buffer2);
+	fclose(buffer2);
 	
 	// 2. Write File data
 
@@ -87,86 +78,24 @@ void AlphaBlending()
 	}
 
 	// 2) Write Bmp File
-	OpenFile_wb(resultFileName, &result);
-	WriteBmpFile(&result, &bf, &bi, size, pImageBlend);
-	CloseFile(&result);
+	ret = fopen_s(&result, resultFileName, "wb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", resultFileName, ret);
+
+	fwrite(&bf, sizeof(bf), 1, result);
+	fwrite(&bi, sizeof(bi), 1, result);
+	fwrite(pImageBlend, size, 1, result);
+	fclose(result);
 
 	free(pImageBlend);
 	free(pImageBuffer1);
 	free(pImageBuffer2);
-
-}
-
-void OpenFile_rb(char filename[], FILE** file)
-{
-	errno_t ret = fopen_s(&(*file), filename, "rb");
-	if (ret != 0)
-		printf("Fail to open %s : %d\n", filename, ret);
-}
-
-void OpenFile_wb(char filename[], FILE** file)
-{
-	errno_t ret = fopen_s(&(*file), filename, "wb");
-	if (ret != 0)
-		printf("Fail to open %s : %d\n", filename, ret);
-}
-
-void CloseFile(FILE** file)
-{
-	errno_t ret = fclose(*file);
-	if (ret != 0)
-		printf("Fail to close file : %d\n", ret);
 }
 
 
-void ReadBmpHeader(FILE** file, BITMAPFILEHEADER* bf, BITMAPINFOHEADER* bi)
+int main()
 {
-	errno_t ret;
-
-	fread(bf, sizeof(*bf), 1, *file);
-	ret = ferror(*file);
-
-	if (ret != 0)
-		printf("Fail to read file header : %d\n", ret);
-
-	fread(bi, sizeof(*bi), 1, *file);
-	ret = ferror(*file);
-
-	if (ret != 0)
-		printf("Fail to read info header : %d\n", ret);
-}
-
-void ReadBmpData(FILE** file, int size, char* data)
-{
-	errno_t ret;
-	fread(data, size, 1, *file);
-	ret = ferror(*file);
-
-	if (ret != 0)
-		printf("Fail to read data : %d\n", ret);
-}
-
-void WriteBmpFile(FILE** output, BITMAPFILEHEADER* bf,
-	BITMAPINFOHEADER* bi, int size, char* data)
-{
-	errno_t ret;
-
-	fwrite(bf, sizeof(*bf), 1, *output);
-	ret = ferror(*output);
-
-	if (ret != 0)
-		printf("Fail to write file header : %d\n", ret);
-
-	fwrite(bi, sizeof(*bi), 1, *output);
-	ret = ferror(*output);
-
-	if (ret != 0)
-		printf("Fail to write info header : %d\n", ret);
-
-	fwrite(data, size, 1, *output);
-	ret = ferror(*output);
-
-	if (ret != 0)
-		printf("Fail to write data : %d\n", ret);
+	AlphaBlending();
+	return 0;
 }
 ```

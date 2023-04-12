@@ -16,17 +16,21 @@ toc_sticky: true
 
 ```c++
 #include <iostream>
-#include <windows.h>
-#include <tchar.h>
 
-#define DICT_SIZE 10
-#define LANG_CNT 2
+#define DICT_MAX 10
 #define WORD_MAX 10
 
 #define IN_MAX 200
 #define OUT_MAX 400
 
-char dict[DICT_SIZE][LANG_CNT][WORD_MAX] =
+enum LANG
+{
+	ENG,
+	KOR,
+	LANG_MAX
+};
+
+char dict[DICT_MAX][LANG_MAX][WORD_MAX] =
 {
 	{"i", "나"},
 	{"you", "너"},
@@ -71,11 +75,11 @@ void Translate()
 				buffer[buffer_idx] = '\0';
 
 				//// 2. translate
-				for (int dict_idx = 0; dict_idx < DICT_SIZE; dict_idx++)
+				for (int dict_idx = 0; dict_idx < DICT_MAX; dict_idx++)
 				{
-					if (strcmp(dict[dict_idx][0], buffer) == 0)
+					if (strcmp(dict[dict_idx][ENG], buffer) == 0)
 					{
-						strcat_s(output, dict[dict_idx][1]);
+						strcat_s(output, dict[dict_idx][KOR]);
 						strcat_s(output, " ");
 						found = true;
 						break;
@@ -99,10 +103,8 @@ void Translate()
 	}
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
 	Translate();
-	return 0;
 }
-
 ```

@@ -142,64 +142,63 @@ public:
 	struct Node
 	{
 		T _data;
-		Node* _Prev;
-		Node* _Next;
+		Node* _prev;
+		Node* _next;
 	};
 
 	class iterator
 	{
+		friend class List;
 	private:
 		Node* _node;
-	public:
-		friend class List;
 	public:
 		iterator(Node* node = nullptr) : _node(node)
 		{
 
 		}
-		iterator operator ++(int)
+		const iterator operator ++(int)
 		{
 			iterator origin = *this;
-			this->_node = _node->_Next;
+			_node = _node->_next;
 			return origin;
 		}
 		iterator& operator++()
 		{
-			this->_node = _node->_Next;
+			_node = _node->_next;
 			return *this;
 		}
-		iterator operator --(int)
+		const iterator operator --(int)
 		{
 			iterator origin = *this;
-			this->_node = _node->_Prev;
+			_node = _node->_prev;
 			return origin;
 		}
 		iterator& operator--()
 		{
-			this->_node = _node->_Prev;
+			_node = _node->_prev;
 			return *this;
 		}
 		T& operator *()
 		{
-			return this->_node->_data;
+			return _node->_data;
 		}
-		bool operator ==(const iterator& other)
+		bool operator == (const iterator& other)
 		{
-			return (this->_node == other._node);
+			return (_node == other._node);
 		}
 		bool operator !=(const iterator& other)
 		{
-			return (this->_node != other._node);
+			return (_node != other._node);
 		}
 	};
 
 public:
 	List()
 	{
-		_head._Prev = nullptr;
-		_head._Next = &_tail;
-		_tail._Prev = &_head;
-		_tail._Next = nullptr;
+		_head._prev = nullptr;
+		_head._next = &_tail;
+		_tail._prev = &_head;
+		_tail._next = nullptr;
 	}
 	~List()
 	{
@@ -208,7 +207,7 @@ public:
 
 	iterator begin()
 	{ 
-		return iterator(_head._Next);
+		return iterator(_head._next);
 	}
 	iterator end()
 	{
@@ -219,52 +218,52 @@ public:
 	{
 		Node* node = new Node;
 		node->_data = data;
-		node->_Prev = &_head;
-		node->_Next = _head._Next;
-		(_head._Next)->_Prev = node;
-		_head._Next = node;
+		node->_prev = &_head;
+		node->_next = _head._next;
+		(_head._next)->_prev = node;
+		_head._next = node;
 		_size++;
 	}
 	void push_back(T data)
 	{
 		Node* node = new Node;
 		node->_data = data;
-		node->_Prev = _tail._Prev;
-		node->_Next = &_tail;
-		(_tail._Prev)->_Next = node;
-		_tail._Prev = node;
+		node->_prev = _tail._prev;
+		node->_next = &_tail;
+		(_tail._prev)->_next = node;
+		_tail._prev = node;
 		_size++;
 	}
 	void pop_front()
 	{
-		Node* nodePtr = _head._Next;
-		_head._Next = nodePtr->_Next;
-		(_head._Next)->_Prev = &_head;
+		Node* nodePtr = _head._next;
+		_head._next = nodePtr->_next;
+		(_head._next)->_prev = &_head;
 		delete(nodePtr);
 		_size--;
 	}
 	void pop_back()
 	{
-		Node* nodePtr = _tail._Prev;
-		_tail._Prev = nodePtr->_Prev;
-		(_tail._Prev)->_Next = &_tail;
+		Node* nodePtr = _tail._prev;
+		_tail._prev = nodePtr->_prev;
+		(_tail._prev)->_next = &_tail;
 		delete(nodePtr);
 		_size--;
 	}
 	void clear()
 	{
-		Node* nodePtr = _head._Next;
+		Node* nodePtr = _head._next;
 		Node* prevNodePtr;
 
 		while (nodePtr != &_tail)
 		{
 			prevNodePtr = nodePtr;
-			nodePtr = prevNodePtr->_Next;
+			nodePtr = prevNodePtr->_next;
 			delete(prevNodePtr);
 		}
 
-		_head._Next = &_tail;
-		_tail._Prev = &_head;
+		_head._next = &_tail;
+		_tail._prev = &_head;
 		_size = 0;
 	}
 
@@ -279,9 +278,9 @@ public:
 
 	iterator erase(iterator iter)
 	{
-		Node* nodePtr = iter._node->_Next;
-		(iter._node->_Next)->_Prev = iter._node->_Prev;
-		(iter._node->_Prev)->_Next = iter._node->_Next;
+		Node* nodePtr = iter._node->_next;
+		(iter._node->_next)->_prev = iter._node->_prev;
+		(iter._node->_prev)->_next = iter._node->_next;
 		delete(iter._node);
 		_size--;
 

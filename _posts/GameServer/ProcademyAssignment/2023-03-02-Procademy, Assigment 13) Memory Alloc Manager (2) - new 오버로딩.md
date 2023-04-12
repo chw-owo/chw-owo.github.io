@@ -136,24 +136,22 @@ void operator delete[](void* p);
 #include "AllocMgr.h"
 
 #include <Windows.h>
-#include <stringapiset.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stringapiset.h>
+
 
 #undef new
-void* operator new(size_t size, const char* File, int Line)
+void* operator new(size_t size, const char* filename, int line)
 {
 	void* ptr = malloc(size);
-	TCHAR filename[FILE_NAME] = { '\0', };
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
-		File, strlen(File), filename, FILE_NAME);
 	
 	AllocInfo info;
 	info._use = true;
 	info._ptr = ptr;
 	info._size = size;
-	_tcscpy_s(info._filename, FILE_NAME, filename);
-	info._line = Line;
+	strcpy_s(info._filename, NAME_SIZE, filename);
+	info._line = line;
 	info._array = false;
 	g_AllocMgr.PushInfo(info);
 
@@ -161,19 +159,16 @@ void* operator new(size_t size, const char* File, int Line)
 	return ptr;
 }
 
-void* operator new[](size_t size, const char* File, int Line)
+void* operator new[](size_t size, const char* filename, int line)
 {
 	void* ptr = malloc(size);
-	TCHAR filename[FILE_NAME] = { '\0', };
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
-		File, strlen(File), filename, FILE_NAME);
 
 	AllocInfo info;
 	info._use = true;
 	info._ptr = ptr;
 	info._size = size;
-	_tcscpy_s(info._filename, FILE_NAME, filename);
-	info._line = Line;
+	strcpy_s(info._filename, NAME_SIZE, filename);
+	info._line = line;
 	info._array = true;
 	g_AllocMgr.PushInfo(info);
 
@@ -181,11 +176,11 @@ void* operator new[](size_t size, const char* File, int Line)
 	return ptr;
 }
 
-void operator delete (void* p, char* File, int Line)
+void operator delete (void* p, char* file, int line)
 {
 
 }
-void operator delete[](void *p, char* File, int Line)
+void operator delete[](void *p, char* file, int line)
 {
 
 }
@@ -205,12 +200,12 @@ void operator delete (void* p)
 
 	if (g_AllocMgr.FindInfo(arrP, &info))
 	{
-		g_AllocMgr.WriteLog(_T("ARRAY"), arrP, info);
+		g_AllocMgr.WriteLog("ARRAY", arrP, info);
 		free(arrP);
 		return;
 	}	
 	
-	g_AllocMgr.WriteLog(_T("NOALLOC"), p, info);
+	g_AllocMgr.WriteLog("NOALLOC", p, info);
 }
 
 void operator delete[](void* p)
@@ -228,12 +223,12 @@ void operator delete[](void* p)
 
 	if (g_AllocMgr.FindInfo(notArrP, &info))
 	{
-		g_AllocMgr.WriteLog(_T("NOARRAY"), notArrP, info);
+		g_AllocMgr.WriteLog("NOARRAY", notArrP, info);
 		free(notArrP);
 		return;
 	}
 
-	g_AllocMgr.WriteLog(_T("NOALLOC"), p, info);
+	g_AllocMgr.WriteLog("NOALLOC", p, info);
 }
 ```
 
@@ -241,21 +236,18 @@ void operator delete[](void* p)
 
 ```c++
 #pragma once
-#include <tchar.h>
-#include <vector>
 using namespace std;
 
 #define INFO_SIZE 128
-
-#define FILE_NAME 256
-#define FILE_SIZE 1024
+#define NAME_SIZE 256
+#define file_SIZE 1024
 
 struct AllocInfo
 {
 	bool _use = false;
 	void* _ptr = nullptr;
 	int _size = 0;
-	TCHAR _filename[FILE_NAME] = { _T('\0'), };
+	char _filename[NAME_SIZE] = { '\0', };
 	int _line = 0;
 	bool _array = false;
 };
@@ -266,40 +258,38 @@ public:
 	~AllocMgr();
 	void PushInfo(AllocInfo info);
 	bool FindInfo(void* ptr, AllocInfo* info = nullptr);
-	void WriteLog(const TCHAR* msg, 
+	void WriteLog(const char* msg, 
 		void* ptr, const AllocInfo& info);
-	void MakeLogFile(TCHAR data[FILE_SIZE]);
+	void MakeLogfile(char data[file_SIZE]);
 	
 private:
 	int _infoCnt = 0;
 	AllocInfo _allocInfos[INFO_SIZE];
 };
-
 extern AllocMgr g_AllocMgr;
-void SetFileName(TCHAR* filename);
+void SetFileName(char* filename);
 ```
 
 **AllocMgr.cpp**
 
 ```c++
 #include "AllocMgr.h"
-#include "FileIO.h"
+#include "stdio.h"
+#include <windows.h>
 #include <fileapi.h>
-#include <tchar.h>
-#include <vector>
 #include <time.h>
-using namespace std;
 
+using namespace std;
 #define NUM 8
-#define OUTPUT_FILE_NAME 32
+#define OUTPUT_NAME_SIZE 32
 #define TIME_BUF 128
 
 AllocMgr g_AllocMgr;
 AllocMgr::~AllocMgr()
 {
-	TCHAR buf[FILE_SIZE] = { '\0', };
-	TCHAR data[FILE_SIZE] = { '\0', };
-	TCHAR msg[] = _T("LEAK");
+	char buf[file_SIZE] = { '\0', };
+	char data[file_SIZE] = { '\0', };
+	char msg[] = "LEAK";
 
 	int infoIdx = 0;
 	int bufIdx = 0;
@@ -309,26 +299,25 @@ AllocMgr::~AllocMgr()
 	{
 		if (_allocInfos[infoIdx]._use)
 		{
-			_stprintf_s(buf, _T("%s [%p] [%d] %s : line is %d\n"),
+			sprintf_s(buf, "%s [%p] [%d] %s : line is %d\n",
 				msg, _allocInfos[infoIdx]._ptr, _allocInfos[infoIdx]._size,
 				_allocInfos[infoIdx]._filename, _allocInfos[infoIdx]._line);
 			
 			bufIdx = 0;
-			while (buf[bufIdx] != _T('\n'))
+			while (buf[bufIdx] != '\n')
 			{
 				data[dataIdx] = buf[bufIdx];
 				bufIdx++;
 				dataIdx++;
 			}
-			data[dataIdx] = _T('\n');
+			data[dataIdx] = '\n';
 
 			dataIdx++;
 			i++;
 		}	
 		infoIdx++;
 	}
-
-	MakeLogFile(data);
+	MakeLogfile(data);
 }
 
 void AllocMgr::PushInfo(AllocInfo info)
@@ -364,59 +353,58 @@ bool AllocMgr::FindInfo(void* ptr, AllocInfo* info)
 	return false;
 }
 
-void AllocMgr::WriteLog(const TCHAR* msg, void* ptr, const AllocInfo& info)
+void AllocMgr::WriteLog(const char* msg, void* ptr, const AllocInfo& info)
 {
-	TCHAR data[FILE_SIZE] = { '\0', };
+	char data[file_SIZE] = { '\0', };
 
-	if (msg == _T("NOALLOC") || msg == _T("NOALLOC[]") )
-		_stprintf_s(data, _T("%s [%p]\n"), msg, ptr);
+	if (msg == "NOALLOC" || msg == "NOALLOC[]" )
+		sprintf_s(data, "%s [%p]\n", msg, ptr);
 	else
-		_stprintf_s(data, _T("%s [%p] [%d] %s : line is %d\n"),
+		sprintf_s(data, "%s [%p] [%d] %s : line is %d\n",
 			msg, ptr, info._size, info._filename, info._line);
 
-	MakeLogFile(data);
+	MakeLogfile(data);
 }
 
-void AllocMgr::MakeLogFile(TCHAR data[FILE_SIZE])
+void AllocMgr::MakeLogfile(char data[file_SIZE])
 {
 	time_t timer = time(NULL);
 	struct tm date;
-	TCHAR buf[TIME_BUF] = { _T('\0'), };
+	char buf[TIME_BUF] = { '\0', };
 	localtime_s(&date, &timer);
 
-	TCHAR filename[OUTPUT_FILE_NAME] = { _T('\0'), };
-	_stprintf_s(filename, _T("Alloc_%04d%02d%02d_%02d%02d%02d_*.txt"),
+	char filename[OUTPUT_NAME_SIZE] = { '\0', };
+	sprintf_s(filename, "Alloc_%04d%02d%02d_%02d%02d%02d_*.txt",
 		date.tm_year + 1900, date.tm_mon + 1,
 		date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec);
 
-	char chData[FILE_SIZE];
-	WideCharToMultiByte(CP_ACP, 0, data, FILE_SIZE,
-		chData, FILE_SIZE, NULL, NULL);
-
 	FILE* file;
-	SetFileName(filename);
-	OpenFile(filename, &file, _T("w"));
-	WriteFile(&file, strlen(chData) + 1, chData);
-	CloseFile(&file);
+	SetfileName(filename);
+
+	errno_t ret = fopen_s(&file, filename, "w");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", filename, ret);
+	fwrite(data, strlen(data) + 1, 1, file);
+	fclose(file);
 }
 
-void SetFileName(TCHAR* filename) 
+void SetfileName(char* filename) 
 {
 	int nameIdx = 0;
 	WIN32_FIND_DATA findData;
-	HANDLE hFile;
-	hFile = FindFirstFile((LPCWSTR)filename, &findData);
+	HANDLE hfile;
+	hfile = FindFirstFile((LPCWSTR)filename, &findData);
 	
-	if (hFile != INVALID_HANDLE_VALUE)
+	if (hfile != INVALID_HANDLE_VALUE)
 		nameIdx++;
 		
-	while (FindNextFile(hFile, &findData))
+	while (FindNextFile(hfile, &findData))
 		nameIdx++;
 
-	FindClose(hFile);
+	FindClose(hfile);
 
-	TCHAR filenameIdx[NUM] = { _T('\0'), };
-	_stprintf_s(filenameIdx, _T("%d.txt"), nameIdx);
+	char filenameIdx[NUM] = { '\0', };
+	sprintf_s(filenameIdx, "%d.txt", nameIdx);
 
 	int idx1 = 0;
 	int idx2 = 0;
@@ -433,73 +421,6 @@ void SetFileName(TCHAR* filename)
 			break;
 		}		
 		idx1++;
-	}	
-}
-```
-
-**FileIO.h**
-
-```c++
-#pragma once
-#include <iostream>
-#include <TCHAR.h>
-#include <windows.h>
-
-//File IO
-void OpenFile(const TCHAR* filename, FILE** file, const TCHAR* mode);
-void ReadFile(FILE** file, const DWORD& size, char* data);
-void WriteFile(FILE** file, const DWORD& size, char* data);
-void CloseFile(FILE** file);
-DWORD GetFileSize(FILE** file);
-```
-
-**FileIO.cpp**
-
-```c++
-#include "FileIO.h"
-
-// File IO
-void OpenFile(const TCHAR* filename, FILE** file, const TCHAR* mode)
-{
-	errno_t ret = _tfopen_s(&(*file), filename, mode);
-	if (ret != 0)
-		_tprintf(_T("Fail to open %s : %d\n"), filename, ret);
-}
-
-void CloseFile(FILE** file)
-{
-	errno_t ret = fclose(*file);
-	if (ret != 0)
-		_tprintf(_T("Fail to close file : %d\n"), ret);
-}
-
-void ReadFile(FILE** file, const DWORD& size, char* data)
-{
-	fread(data, size, 1, *file);
-	errno_t ret = ferror(*file);
-
-	if (ret != 0)
-		_tprintf(_T("Fail to read data : %d\n"), ret);
-}
-
-void WriteFile(FILE** file, const DWORD& size, char* data)
-{
-	fwrite(data, size, 1, *file);
-	errno_t ret = ferror(*file);
-
-	if (ret != 0)
-		_tprintf(_T("Fail to write data : %d\n"), ret);
-}
-
-DWORD GetFileSize(FILE** file)
-{
-	fseek(*file, 0, SEEK_END);
-	LONG size = ftell(*file);
-	fseek(*file, 0, SEEK_SET);
-
-	if (size == -1)
-		_tprintf(_T("Fail to get file size\n"));
-
-	return size;
+	}
 }
 ```

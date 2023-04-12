@@ -25,40 +25,32 @@ toc_sticky: true
 #include <iostream>
 #include <conio.h>
 #include <windows.h>
-#pragma comment(lib, "Winmm.lib") 
 
 #define CNT 9
 int g_Timing[CNT] = { 5, 10, 14, 17, 20, 25, 29, 31, 33 };
 
 void TimingGame()
-{  
+{
+    float fLeftTime;
     DWORD dwStartTime = timeGetTime();
     float error[CNT] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-    // 오차는 절대값으로 체크하기 때문에 
-    // 음수로 초기화하여 아직 입력되지 않은 경우를 구분한다. 
-
-    float fLeftTime;
     int idx = 0;
 
     while (1)
     {
         //logic section 
-
-        // 만약 Count값이 넘어가면 종료
-        if (idx >= CNT)
-            break;
-
         fLeftTime = (timeGetTime() - dwStartTime) / (float)CLOCKS_PER_SEC;
 
-        // 시간이 초과한 경우
-        if (idx < CNT && fLeftTime >= g_Timing[idx] + 1 && error[idx] == -1)
+        if (fLeftTime >= g_Timing[idx] + 1 && error[idx] == -1)
         {
             error[idx] = 1;
-            idx++;           
+            idx++;
         }           
 
-        // 키를 입력받은 경우   
-        if (idx < CNT && _kbhit())
+        if (idx >= CNT)
+            break;
+           
+        if (_kbhit())
         {
             _getch();
             error[idx] = abs(fLeftTime - g_Timing[idx]);
@@ -72,42 +64,30 @@ void TimingGame()
         {
             if(error[i] == -1)
                 printf("%u sec:\n", g_Timing[i]);
+
             else if(error[i] >= 0 && error[i] < 0.25)
                 printf("%u sec: Great!\n", g_Timing[i]);
+
             else if (error[i] >= 0.25 && error[i] < 0.5)
                 printf("%u sec: Good!\n", g_Timing[i]); 
+
             else if (error[i] >= 0.5 && error[i] < 0.75)
                 printf("%u sec: Nogood\n", g_Timing[i]);
+
             else if (error[i] >= 0.75 && error[i] < 1)
                 printf("%u sec: Bad\n", g_Timing[i]);
+
             else if (error[i] >= 1)
                 printf("%u sec: Fail\n", g_Timing[i]);
-        }
+        } 
     }
 }
 
 int main()
 {
-    // 시간 해상도를 높여준다
     timeBeginPeriod(1);
     TimingGame();
     timeEndPeriod(1);
-    // TimingGame이 끝나면 종료한다
 }
-
 ```
-
-<br/>
-
-## **과제 피드백**
-
-23/02/08 수업 이후 업데이트 
-
-<br/>
-
-## **질의응답**
-
-23/02/08 수업 이후 업데이트 
-
-<br/>
 

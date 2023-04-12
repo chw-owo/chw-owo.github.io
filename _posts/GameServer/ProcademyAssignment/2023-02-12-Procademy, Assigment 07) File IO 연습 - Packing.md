@@ -60,82 +60,15 @@ zip 처럼 파일을 패킹할 수 있는 프로그램을 만든다. 이 과정�
 
 **main.cpp**
 ```c++
-#include "FileIO.h"
 #include "PackingMenu.h"
 
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
 	while (1)
 	{
 		PrintMenu();
 		SelectMenu();
 	}
-}
-```
-
-**FileIO.h**
-```c++
-#pragma once
-#include <iostream>
-#include <TCHAR.h>
-#include <windows.h>
-
-//File IO
-void OpenFile(const TCHAR* filename, FILE** file, const TCHAR* mode);
-void ReadFile(FILE** file, const DWORD& size, char* data);
-void WriteFile(FILE** file, const DWORD& size, char* data);
-void CloseFile(FILE** file);
-DWORD GetFileSize(FILE** file);
-```
-
-**FileIO.cpp**
-```c++
-#include "FileIO.h"
-#include "Packing.h"
-
-// File IO
-void OpenFile(const TCHAR* filename, FILE** file, const TCHAR* mode)
-{
-	errno_t ret = _tfopen_s(&(*file), filename, mode);
-	if (ret != 0)
-		_tprintf(_T("Fail to open %s : %d\n"), filename, ret);
-}
-
-void CloseFile(FILE** file)
-{
-	errno_t ret = fclose(*file);
-	if (ret != 0)
-		_tprintf(_T("Fail to close file : %d\n"), ret);
-}
-
-void ReadFile(FILE** file, const DWORD& size, char* data)
-{
-	fread(data, size, 1, *file);
-	errno_t ret = ferror(*file);
-
-	if (ret != 0)
-		_tprintf(_T("Fail to read data : %d\n"), ret);
-}
-
-void WriteFile(FILE** file, const DWORD& size, char* data)
-{
-	fwrite(data, size, 1, *file);
-	errno_t ret = ferror(*file);
-
-	if (ret != 0)
-		_tprintf(_T("Fail to write data : %d\n"), ret);
-}
-
-DWORD GetFileSize(FILE** file)
-{
-	fseek(*file, 0, SEEK_END);
-	LONG size = ftell(*file);
-	fseek(*file, 0, SEEK_SET);
-
-	if (size == -1)
-		_tprintf(_T("Fail to get file size\n"));
-
-	return size;
 }
 ```
 
@@ -170,10 +103,15 @@ void Menu_UpdateFile();
 **PackingMenu.cpp**
 ```c++
 #include "PackingMenu.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MENU_INPUT 4
+#define INPUT 512
 
 void PrintMenu()
 {
-	_tprintf(_T(
+	printf(
 		"1. Pack\n"
 		"2. Unpack\n"
 		"3. Show All Files in Packfile\n"
@@ -182,15 +120,15 @@ void PrintMenu()
 		"6. Select File to Update\n"
 		"7. Clear Console Window\n\n"
 
-		"Choose number and press enter\n")
+		"Choose number and press enter\n"
 	);
 }
 
 void SelectMenu()
 {
-	TCHAR input[MENU_INPUT] = { '\0', };
-	_fgetts(input, MENU_INPUT, stdin);
-	DWORD select = _ttoi(input);
+	char input[MENU_INPUT] = { '\0', };
+	fgets(input, MENU_INPUT, stdin);
+	int select = atoi(input);
 
 	switch (select)
 	{
@@ -223,7 +161,7 @@ void SelectMenu()
 		break;
 
 	default:
-		_tprintf(_T("Wrong input. Choose Again\n"));
+		printf("Wrong input. Choose Again\n");
 	}
 }
 
@@ -232,15 +170,15 @@ void SelectMenu()
 void Menu_Pack()
 {
 	// Get PackFile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name. (max length %u)\n"), FILE_NAME);
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name. (max length %u)\n", FILE_NAME);
+	fgets(packName, FILE_NAME, stdin);
  
 	// Get Files' Name to Pack
-	TCHAR fileNames[INPUT] = { ' ', };
-	_tprintf(_T("Enter files' name with extension to pack." 
-		" (max count %d, max length %d)\n"), FILE_CNT, INPUT);
-	_fgetts(fileNames, INPUT, stdin);
+	char fileNames[INPUT] = { ' ', };
+	printf("Enter files' name with extension to pack." 
+		" (max count %d, max length %d)\n", FILE_CNT, INPUT);
+	fgets(fileNames, INPUT, stdin);
 
 	Pack(packName, fileNames);
 
@@ -249,9 +187,9 @@ void Menu_Pack()
 void Menu_Unpack()
 {
 	// Get PackFile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name to unpack.\n"));
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name to unpack.\n");
+	fgets(packName, FILE_NAME, stdin);
 
 	Unpack(packName);
 }
@@ -259,28 +197,28 @@ void Menu_Unpack()
 void Menu_ShowFiles()
 {
 	// Get PackFile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name to add file.\n"));
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name to add file.\n");
+	fgets(packName, FILE_NAME, stdin);
 
 	//ReadPackFile(packName, pack);
 	ShowFiles(packName);
 
-	_tprintf(_T("Show All Files Complete!\n\n"));
+	printf("Show All Files Complete!\n\n");
 }
 
 void Menu_AddPack()
 {
 	// Get PackFile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name to add file.\n"));
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name to add file.\n");
+	fgets(packName, FILE_NAME, stdin);
 
 	// Get Files' Name to Pack
-	TCHAR fileNames[INPUT] = { ' ', };
-	_tprintf(_T("Enter files name with extension to add."
-		" (max count %d, max length %d)\n"), FILE_CNT, INPUT);
-	_fgetts(fileNames, INPUT, stdin);
+	char fileNames[INPUT] = { ' ', };
+	printf("Enter files name with extension to add."
+		" (max count %d, max length %d)\n", FILE_CNT, INPUT);
+	fgets(fileNames, INPUT, stdin);
 
 	// Add Files To Pack
 	AddPack(packName, fileNames);
@@ -289,15 +227,15 @@ void Menu_AddPack()
 void Menu_UnpackFiles()
 {
 	// Get PackFile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name to unpack.\n"));
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name to unpack.\n");
+	fgets(packName, FILE_NAME, stdin);
 
 	// Get Files' Name to Pack
-	TCHAR fileNames[INPUT] = { ' ', };
-	_tprintf(_T("Enter files name with extension to add."
-		" (max count %d, max length %d)\n"), FILE_CNT, INPUT);
-	_fgetts(fileNames, INPUT, stdin);
+	char fileNames[INPUT] = { ' ', };
+	printf("Enter files name with extension to add."
+		" (max count %d, max length %d)\n", FILE_CNT, INPUT);
+	fgets(fileNames, INPUT, stdin);
 
 	// Write Data to Files
 	UnpackFiles(packName, fileNames);
@@ -306,44 +244,42 @@ void Menu_UnpackFiles()
 void Menu_UpdateFile()
 {
 	// Get Packfile Name
-	TCHAR packName[FILE_NAME] = { '\0', };
-	_tprintf(_T("Enter pack file name to unpack.\n"));
-	_fgetts(packName, FILE_NAME, stdin);
+	char packName[FILE_NAME] = { '\0', };
+	printf("Enter pack file name to unpack.\n");
+	fgets(packName, FILE_NAME, stdin);
 
 	// Get File Name to Update
-	TCHAR fileName[FILE_NAME] = { ' ', };
-	_tprintf(_T("Enter file name with extension to update."
-		" (max length %d)\n"), FILE_NAME);
-	_fgetts(fileName, FILE_NAME, stdin);
+	char fileName[FILE_NAME] = { ' ', };
+	printf("Enter file name with extension to update."
+		" (max length %d)\n", FILE_NAME);
+	fgets(fileName, FILE_NAME, stdin);
 
 	// Update Data
 	UpdateFile(packName, fileName);
-
 }
 ```
 
 **Packing.h**
 ```c++
 #pragma once
-#include "FileIO.h"
+#include <iostream>
+#include <windows.h>
 
-#define MENU_INPUT 4
 #define FILE_CNT 32
 #define FILE_NAME 32
-#define INPUT 512
-#define TYPE 0x99886655
+
 typedef struct _PACKINFOHEADER
 {
 	DWORD64 type = 0x99886655;
-	DWORD fileNum = 0;
+	int fileNum = 0;
 
 }PACKINFOHEADER;
 
 typedef struct _FILEINFOHEADER
 {
-	DWORD fileSize[FILE_CNT] = { 0, };
-	DWORD offset[FILE_CNT] = { 0, };
-	TCHAR fileName[FILE_CNT][FILE_NAME];
+	int fileSize[FILE_CNT] = { 0, };
+	int offset[FILE_CNT] = { 0, };
+	char fileName[FILE_CNT][FILE_NAME];
 
 }FILEINFOHEADER;
 
@@ -355,60 +291,63 @@ typedef struct _PACKING
 
 }PACKING;
 
-void Pack(TCHAR* packName, TCHAR* inputFilesName);
-void Unpack(TCHAR* packName);
-void ShowFiles(TCHAR* packName);
-void AddPack(TCHAR* packName, TCHAR* inputFilesName);
-void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName);
-void UpdateFile(TCHAR* packName, TCHAR* fileName);
+void Pack(char* packName, char* inputFilesName);
+void Unpack(char* packName);
+void ShowFiles(char* packName);
+void AddPack(char* packName, char* inputFilesName);
+void UnpackFiles(char* packName, char* inputFilesName);
+void UpdateFile(char* packName, char* fileName);
 
 //For Common ================================
-void RemoveChar(TCHAR* fileName);
+void RemoveChar(char* fileName);
 void SetPack(PACKING& pack);
+int GetFileSize(FILE** file);
 
 template <typename T>
-void ChangeDataToChar(char* output, const DWORD& idx, const T& input);
+void ChangeCharToData(const char* input, int idx, T output);
 template <typename T>
-void ChangeDataArrToChar(char* output, const T& input, const DWORD& idx, const DWORD& cnt);
+void ChangeCharToDataArr(const char* input, T output, int idx, int cnt);
 template <typename T>
-void ChangeCharToData(const char* input, const DWORD& idx, T& output);
+void ChangeDataToChar(char* output, int idx, T input);
 template <typename T>
-void ChangeCharToDataArr(const char* input, T& output, const DWORD& idx, const DWORD& cnt);
+void ChangeDataArrToChar(char* output, T input, int idx, int cnt);
 ```
 
 **Packing.cpp**
 ```c++
 #include "Packing.h"
-#include "FileIO.h"
 
-void Pack(TCHAR* packName, TCHAR* inputFilesName)
+void Pack(char* packName, char* inputFilesName)
 {
 	PACKING pack;
 	RemoveChar(packName);
 	SetPack(pack);
 
 	// Add Files to Pack =========================================
-	TCHAR seps[] = _T(" \t\n");
-	TCHAR* next = nullptr;
-	TCHAR* fileName;
+	char seps[] = " \t\n";
+	char* next = nullptr;
+	char* fileName;
 
-	fileName = _tcstok_s(inputFilesName, seps, &next);
+	fileName = strtok_s(inputFilesName, seps, &next);
 	char* data[FILE_CNT];
-	DWORD dataSize;
+	int dataSize;
 
 	FILE* file;
-	DWORD totalSize = 0;
+	int totalSize = 0;
+	errno_t ret;
 
 	while (fileName != NULL)
 	{
 		RemoveChar(fileName);
-		OpenFile(fileName, &file, _T("rb"));
+		ret = fopen_s(&file, fileName, "rb");
+		if (ret != 0)
+			printf("Fail to open %s : %d\n", fileName, ret);
+
 		dataSize = GetFileSize(&file);
-
 		data[pack.pi.fileNum] = static_cast<char*>(malloc(dataSize));
-		memset(data[pack.pi.fileNum], _T('\0'), dataSize);
+		memset(data[pack.pi.fileNum], '\0', dataSize);
+		fread(data[pack.pi.fileNum], dataSize, 1, file);
 
-		ReadFile(&file, dataSize, data[pack.pi.fileNum]);
 		totalSize += dataSize;
 		if (pack.pi.fileNum == 0)
 		{
@@ -421,24 +360,24 @@ void Pack(TCHAR* packName, TCHAR* inputFilesName)
 				+ pack.fi.fileSize[pack.pi.fileNum - 1];
 		}
 
-		memset(pack.fi.fileName[pack.pi.fileNum], _T('\0'), FILE_NAME);
-		_tcscpy_s(pack.fi.fileName[pack.pi.fileNum], FILE_NAME, fileName);
+		memset(pack.fi.fileName[pack.pi.fileNum], '\0', FILE_NAME);
+		strcpy_s(pack.fi.fileName[pack.pi.fileNum], FILE_NAME, fileName);
 		pack.fi.fileSize[pack.pi.fileNum] = dataSize;
 		pack.pi.fileNum++;
 
-		CloseFile(&file);
+		fclose(file);
 
-		fileName = _tcstok_s(NULL, seps, &next);
+		fileName = strtok_s(NULL, seps, &next);
 	}
 
 	pack.data = static_cast<char*>(malloc(totalSize));
-	memset(pack.data, _T('\0'), totalSize);
+	memset(pack.data, '\0', totalSize);
 
-	DWORD offset;
-	for (DWORD i = 0; i < pack.pi.fileNum; i++)
+	int offset;
+	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
 		offset = pack.fi.offset[i];
-		for (DWORD j = 0; j < pack.fi.fileSize[i]; j++)
+		for (int j = 0; j < pack.fi.fileSize[i]; j++)
 		{
 			pack.data[offset + j] = *(data[i] + j);
 		}
@@ -449,43 +388,40 @@ void Pack(TCHAR* packName, TCHAR* inputFilesName)
 	// Write pack to Packfile
 
 	totalSize =
-		sizeof(DWORD64) + sizeof(DWORD)			// PACK INFO HEADER
-		+ sizeof(DWORD) * FILE_CNT * 2			// FILE INFO HEADER 1
-		+ sizeof(TCHAR) * FILE_CNT * FILE_NAME	// FILE INFO HEADER 2
+		sizeof(DWORD64) + sizeof(int)			// PACK INFO HEADER
+		+ sizeof(int) * FILE_CNT * 2			// FILE INFO HEADER 1
+		+ sizeof(char) * FILE_CNT * FILE_NAME	// FILE INFO HEADER 2
 		+ pack.fi.offset[pack.pi.fileNum - 1]	// DATA
 		+ pack.fi.fileSize[pack.pi.fileNum - 1];
 
 	char* totalData = static_cast<char*>(malloc(totalSize));
 	memset(totalData, '\0', totalSize);
 
-	DWORD idx;
+	int idx;
 
 	idx = 0;
 	ChangeDataToChar(totalData, idx, pack.pi.type);
 	idx += sizeof(DWORD64);
 	ChangeDataToChar(totalData, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeDataArrToChar(totalData, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeDataArrToChar(totalData, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
-	DWORD tmpIdx = idx;
+	int tmpIdx = idx;
 	char cTmp[FILE_NAME] = { '\0', };
 	for (int i = 0; i < FILE_CNT; i++)
 	{
-		WideCharToMultiByte(CP_ACP, 0, pack.fi.fileName[i],
-			FILE_NAME, cTmp, FILE_NAME, NULL, NULL);
-
+		strcpy_s(cTmp, FILE_NAME, pack.fi.fileName[i]);
 		for (int j = 0; j < FILE_NAME; j++)
 		{
 			totalData[tmpIdx] = cTmp[j];
 			tmpIdx++;
 		}
 	}
-	idx += sizeof(TCHAR) * FILE_CNT * FILE_NAME;
+	idx += sizeof(char) * FILE_CNT * FILE_NAME;
 
-	offset;
 	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
 		offset = pack.fi.offset[i];
@@ -497,45 +433,53 @@ void Pack(TCHAR* packName, TCHAR* inputFilesName)
 	free(pack.data);
 
 	FILE* packfile;
-	OpenFile(packName, &packfile, _T("wb"));
-	WriteFile(&packfile, totalSize, totalData);
-	CloseFile(&packfile);
 
-	_tprintf(_T("Pack Complete!\n\n"));
+	ret = fopen_s(&packfile, packName, "wb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
+
+	fwrite(totalData, totalSize, 1, packfile);
+	fclose(packfile);
+
+	printf("Pack Complete!\n\n");
 }
 
 
-void Unpack(TCHAR* packName)
+void Unpack(char* packName)
 {
 	PACKING pack;
 	RemoveChar(packName);
 
 	FILE* file;
-	OpenFile(packName, &file, _T("rb"));
+	errno_t ret;
 
-	DWORD size = GetFileSize(&file);
+	ret = fopen_s(&file, packName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
+
+	int size = GetFileSize(&file);
 	char* data = static_cast<char*>(malloc(size));
 	memset(data, '\0', size);
-	ReadFile(&file, size, data);
-	CloseFile(&file);
+	fread(data, size, 1, file);
+	fclose(file);
 
-	DWORD idx = 0;
+	int idx = 0;
 	DWORD64 type = 0;
 	ChangeCharToData(data, idx, type);
 
 	if (type != pack.pi.type)
 	{
-		_tprintf(_T("It's not pack file!: %ux, %ux\n"), type, pack.pi.type);
+		printf("It's not pack file!: %ux, %ux\n", type, pack.pi.type);
 		return;
 	}
 
 	idx += sizeof(DWORD64);
 	ChangeCharToData(data, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeCharToDataArr(data, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeCharToDataArr(data, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
 	char seps[] = " \t\n";
 	char* next = nullptr;
@@ -548,18 +492,16 @@ void Unpack(TCHAR* packName)
 		{
 			cTmp[j] = *(data + idx + i * FILE_NAME + j);
 		}
-
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cTmp,
-			FILE_NAME, pack.fi.fileName[i], FILE_NAME);
+		strcpy_s(pack.fi.fileName[i], FILE_NAME, cTmp);
 	}
 
-	idx += sizeof(TCHAR) * FILE_CNT * FILE_NAME;
+	idx += sizeof(char) * FILE_CNT * FILE_NAME;
 
-	DWORD dataSize = size - idx;
+	int dataSize = size - idx;
 	pack.data = static_cast<char*>(malloc(dataSize));
 	memset(pack.data, '\0', dataSize);
 
-	DWORD offset;
+	int offset;
 	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
 		offset = pack.fi.offset[i];
@@ -584,50 +526,54 @@ void Unpack(TCHAR* packName)
 		}
 
 		FILE* file;
-		OpenFile(pack.fi.fileName[i], &file, _T("wb"));
-		WriteFile(&file, size, data);
-		CloseFile(&file);
+		ret = fopen_s(&file, pack.fi.fileName[i], "wb");
+		if (ret != 0)
+			printf("Fail to open %s : %d\n", pack.fi.fileName[i], ret);
+		fwrite(data, size, 1, file);
+		fclose(file);
 		free(data);
 	}
 
 	free(pack.data);
-	_tprintf(_T("Unpack Complete!\n\n"));
+	printf("Unpack Complete!\n\n");
 }
 
-void AddPack(TCHAR* packName, TCHAR* inputFilesName)
+void AddPack(char* packName, char* inputFilesName)
 {
 	PACKING pack;
 	RemoveChar(packName);
 	SetPack(pack);
 
-	// ReadPackFile(TCHAR * packname, PACKING & pack)
-	
+	// ReadPackFile(char * packname, PACKING & pack)
 	FILE* packfile;
-	OpenFile(packName, &packfile, _T("rb"));
+	errno_t ret;
+	ret = fopen_s(&packfile, packName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
 
-	DWORD size = GetFileSize(&packfile);
+	int size = GetFileSize(&packfile);
 	char* data = static_cast<char*>(malloc(size));
 	memset(data, '\0', size);
-	ReadFile(&packfile, size, data);
-	CloseFile(&packfile);
+	fread(data, size, 1, packfile);
+	fclose(packfile);
 
-	DWORD idx = 0;
+	int idx = 0;
 	DWORD64 type = 0;
 	ChangeCharToData(data, idx, type);
 
 	if (type != pack.pi.type)
 	{
-		_tprintf(_T("It's not pack file!\n"));
+		printf("It's not pack file!\n");
 		return;
 	}
 
 	idx += sizeof(DWORD64);
 	ChangeCharToData(data, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeCharToDataArr(data, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeCharToDataArr(data, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
 	char seps[] = " \t\n";
 	char* next = nullptr;
@@ -638,28 +584,25 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 	{
 		tok = strtok_s(data + idx + i * FILE_NAME, seps, &next);
 		strcpy_s(cTmp, FILE_NAME, tok);
-
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cTmp,
-			FILE_NAME, pack.fi.fileName[i], FILE_NAME);
+		strcpy_s(cTmp, FILE_NAME, pack.fi.fileName[i]);	
 	}
 
-	idx += sizeof(TCHAR) * FILE_CNT * FILE_NAME;
+	idx += sizeof(char) * FILE_CNT * FILE_NAME;
 
-	DWORD dataSize = size - idx;
-
+	int dataSize = size - idx;
 	
 	//AddFilesToPack
 	
-	TCHAR tSeps[] = _T(" \t\n");
-	TCHAR* tNext = nullptr;
-	TCHAR* fileName;
+	char tSeps[] = " \t\n";
+	char* tNext = nullptr;
+	char* fileName;
 
-	fileName = _tcstok_s(inputFilesName, tSeps, &tNext);
+	fileName = strtok_s(inputFilesName, tSeps, &tNext);
 	char* fileData[FILE_CNT];
-	DWORD fileSize;
+	int fileSize;
 
 	FILE* file;
-	DWORD originFileNum;
+	int originFileNum;
 
 	if (pack.pi.fileNum == 0)
 		originFileNum = 0;
@@ -669,13 +612,15 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 	while (fileName != NULL)
 	{
 		RemoveChar(fileName);
-		OpenFile(fileName, &file, _T("rb"));
+		ret = fopen_s(&file, fileName, "rb");
+		if (ret != 0)
+			printf("Fail to open %s : %d\n", fileName, ret);
 		fileSize = GetFileSize(&file);
 
 		fileData[pack.pi.fileNum] = static_cast<char*>(malloc(fileSize));
-		memset(fileData[pack.pi.fileNum], _T('\0'), fileSize);
+		memset(fileData[pack.pi.fileNum], '\0', fileSize);
 
-		ReadFile(&file, fileSize, fileData[pack.pi.fileNum]);
+		fread(fileData[pack.pi.fileNum], fileSize, 1, file);
 		dataSize += fileSize;
 
 		if (pack.pi.fileNum == 0)
@@ -689,20 +634,20 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 				+ pack.fi.fileSize[pack.pi.fileNum - 1];
 		}
 
-		memset(pack.fi.fileName[pack.pi.fileNum], _T('\0'), FILE_NAME);
-		_tcscpy_s(pack.fi.fileName[pack.pi.fileNum], FILE_NAME, fileName);
+		memset(pack.fi.fileName[pack.pi.fileNum], '\0', FILE_NAME);
+		strcpy_s(pack.fi.fileName[pack.pi.fileNum], FILE_NAME, fileName);
 		pack.fi.fileSize[pack.pi.fileNum] = fileSize;
 		pack.pi.fileNum++;
 
-		CloseFile(&file);
+		fclose(file);
 
-		fileName = _tcstok_s(NULL, tSeps, &tNext);
+		fileName = strtok_s(NULL, tSeps, &tNext);
 	}
 
 	pack.data = static_cast<char*>(malloc(dataSize));
-	memset(pack.data, _T('\0'), dataSize);
+	memset(pack.data, '\0', dataSize);
 
-	DWORD offset;
+	int offset;
 	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
 		offset = pack.fi.offset[i];
@@ -727,10 +672,10 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 	//WritePackToFile
 
 	// 0. Setting
-	DWORD totalSize = dataSize +
-			( sizeof(DWORD64) + sizeof(DWORD)			// PACK INFO HEADER
-			+ sizeof(DWORD) * FILE_CNT * 2				// FILE INFO HEADER 1
-			+ sizeof(TCHAR) * FILE_CNT * FILE_NAME);	// FILE INFO HEADER 2
+	int totalSize = dataSize +
+			( sizeof(DWORD64) + sizeof(int)			// PACK INFO HEADER
+			+ sizeof(int) * FILE_CNT * 2				// FILE INFO HEADER 1
+			+ sizeof(char) * FILE_CNT * FILE_NAME);	// FILE INFO HEADER 2
 
 
 	char* totalData = static_cast<char*>(malloc(totalSize));
@@ -742,26 +687,24 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 	ChangeDataToChar(totalData, idx, pack.pi.type);
 	idx += sizeof(DWORD64);
 	ChangeDataToChar(totalData, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeDataArrToChar(totalData, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeDataArrToChar(totalData, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
-	DWORD tmpIdx = idx;
+	int tmpIdx = idx;
 	char cTmp2[FILE_NAME] = { '\0', };
 	for (int i = 0; i < FILE_CNT; i++)
 	{
-		WideCharToMultiByte(CP_ACP, 0, pack.fi.fileName[i],
-			FILE_NAME, cTmp2, FILE_NAME, NULL, NULL);
-
+		strcpy_s(cTmp2, FILE_NAME, pack.fi.fileName[i]);
 		for (int j = 0; j < FILE_NAME; j++)
 		{
 			totalData[tmpIdx] = cTmp2[j];
 			tmpIdx++;
 		}
 	}
-	idx += sizeof(TCHAR) * FILE_CNT * FILE_NAME;
+	idx += sizeof(char) * FILE_CNT * FILE_NAME;
 
 	//2. Get pack.data
 	for (int i = 0; i < pack.pi.fileNum; i++)
@@ -777,97 +720,101 @@ void AddPack(TCHAR* packName, TCHAR* inputFilesName)
 
 	//3. Write Data to File
 
-	OpenFile(packName, &packfile, _T("wb"));
-	WriteFile(&packfile, totalSize, totalData);
-	CloseFile(&packfile);
+	ret = fopen_s(&packfile, packName, "wb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
+	fwrite(totalData, totalSize, 1, packfile);
+	fclose(packfile);
 
-	_tprintf(_T("Add Files to Packfile Complete!\n\n"));
+	printf("Add Files to Packfile Complete!\n\n");
 }
 
-void ShowFiles(TCHAR* packName)
+void ShowFiles(char* packName)
 {
 	PACKING pack;
 	SetPack(pack);
 	RemoveChar(packName);
 	
 	FILE* file;
-	OpenFile(packName, &file, _T("rb"));
+	errno_t ret;
+	ret = fopen_s(&file, packName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
 
-	DWORD size = GetFileSize(&file);
+	int size = GetFileSize(&file);
 	char* data = static_cast<char*>(malloc(size));
 	memset(data, '\0', size);
-	ReadFile(&file, size, data);
-	CloseFile(&file);
+	fread(data, size, 1, file);
+	fclose(file);
 
-	DWORD idx = 0;
+	int idx = 0;
 	DWORD64 type = 0;
-	DWORD fileNum = 0;
+	int fileNum = 0;
 	ChangeCharToData(data, idx, type);
 
 	if (type != pack.pi.type)
 	{
-		_tprintf(_T("It's not pack file!\n"));
+		printf("It's not pack file!\n");
 		return;
 	}
-		
 
 	idx += sizeof(DWORD64);
 	ChangeCharToData(data, idx, fileNum);
-	idx += (sizeof(DWORD) + sizeof(DWORD) * FILE_CNT * 2);
+	idx += (sizeof(int) + sizeof(int) * FILE_CNT * 2);
 
 	char seps[] = " \t\n";
 	char* next = nullptr;
 	char* tok;
 
 	char cTmp[FILE_NAME] = { '\0', };
-	TCHAR fileName[FILE_NAME] = { '\0', };
+	char fileName[FILE_NAME] = { '\0', };
 	for (int i = 0; i < fileNum; i++)
 	{
 		tok = strtok_s(data + idx + i * FILE_NAME, seps, &next);
 		strcpy_s(cTmp, FILE_NAME, tok);
-
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cTmp,
-			FILE_NAME, fileName, FILE_NAME);
-
-		_tprintf(_T("%d. %s\n"), i, fileName);
+		strcpy_s(cTmp, FILE_NAME, fileName);
+		printf("%d. %s\n", i, fileName);
 	}
 
-	_tprintf(_T("\n"));
+	printf("\n");
 }
 
 
-void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName)
+void UnpackFiles(char* packName, char* inputFilesName)
 {
 	PACKING pack;
 	SetPack(pack);
 
 	FILE* packfile;
-	RemoveChar(packName);
-	OpenFile(packName, &packfile, _T("rb"));
+	errno_t ret;
 
-	DWORD packSize = GetFileSize(&packfile);
+	RemoveChar(packName);
+	ret = fopen_s(&packfile, packName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
+
+	int packSize = GetFileSize(&packfile);
 	char* packData = static_cast<char*>(malloc(packSize));
 	memset(packData, '\0', packSize);
-	ReadFile(&packfile, packSize, packData);
-	CloseFile(&packfile);
+	fread(packData, packSize, 1, packfile);
+	fclose(packfile);
 
-	DWORD idx = 0;
+	int idx = 0;
 	DWORD64 type = 0;
 	ChangeCharToData(packData, idx, type);
 
 	if (type != pack.pi.type)
 	{
-		_tprintf(_T("It's not pack file!: %x, %x\n"), type, pack.pi.type);
+		printf("It's not pack file!: %x, %x\n", type, pack.pi.type);
 	}
 		
-	
 	idx += sizeof(DWORD64);
 	ChangeCharToData(packData, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeCharToDataArr(packData, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeCharToDataArr(packData, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
 	char seps[] = " \t\n";
 	char* next = nullptr;
@@ -880,19 +827,17 @@ void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName)
 		{
 			cTmp[j] = *(packData + idx + i * FILE_NAME + j);
 		}
-
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cTmp,
-			FILE_NAME, pack.fi.fileName[i], FILE_NAME);
+		strcpy_s(cTmp, FILE_NAME, pack.fi.fileName[i]);
 	}
 
-	idx += sizeof(TCHAR) * FILE_CNT * FILE_NAME;
+	idx += sizeof(char) * FILE_CNT * FILE_NAME;
 
-	DWORD dataSize = packSize - idx;
+	int dataSize = packSize - idx;
 
 	pack.data = static_cast<char*>(malloc(dataSize));
 	memset(pack.data, '\0', dataSize);
 
-	DWORD offset;
+	int offset;
 	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
 		offset = pack.fi.offset[i];
@@ -904,20 +849,20 @@ void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName)
 
 	free(packData);
 
-	DWORD fileSize;
+	int fileSize;
 	bool flag = false;
 
-	TCHAR tSeps[] = _T(" \t\n");
-	TCHAR* tNext = nullptr;
-	TCHAR* fileName;
-	fileName = _tcstok_s(inputFilesName, tSeps, &tNext);
+	char tSeps[] = " \t\n";
+	char* tNext = nullptr;
+	char* fileName;
+	fileName = strtok_s(inputFilesName, tSeps, &tNext);
 
 	while (fileName != NULL)
 	{
 		RemoveChar(fileName);
 		for (int i = 0; i < pack.pi.fileNum; i++)
 		{
-			if (_tcscmp(fileName, pack.fi.fileName[i]) == 0)
+			if (strcmp(fileName, pack.fi.fileName[i]) == 0)
 			{
 				fileSize = pack.fi.fileSize[i];
 				char* fileData = static_cast<char*>(malloc(fileSize));
@@ -930,12 +875,14 @@ void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName)
 				}
 
 				FILE* file;
-				OpenFile(pack.fi.fileName[i], &file, _T("wb"));
-				WriteFile(&file, fileSize, fileData);
-				CloseFile(&file);
+				ret = fopen_s(&file, pack.fi.fileName[i], "wb");
+				if (ret != 0)
+					printf("Fail to open %s : %d\n", pack.fi.fileName[i], ret);
+				fwrite(fileData, fileSize, 1, file);
+				fclose(file);
 				free(fileData);
 
-				_tprintf(_T("%s is unpacked successfully\n"), fileName);
+				printf("%s is unpacked successfully\n", fileName);
 				flag = true;
 				break;
 			}
@@ -943,61 +890,67 @@ void UnpackFiles(TCHAR* packName, TCHAR* inputFilesName)
 
 		if (flag == false)
 		{
-			_tprintf(_T("%s does not exist in the pack file\n"), fileName);
+			printf("%s does not exist in the pack file\n", fileName);
 		}
 
-		fileName = _tcstok_s(NULL, tSeps, &tNext);
+		fileName = strtok_s(NULL, tSeps, &tNext);
 		flag = false;
 	}
 	free(pack.data);
-	_tprintf(_T("Unpack Selected Files Complete!\n\n"));
+	printf("Unpack Selected Files Complete!\n\n");
 }
 
-void UpdateFile(TCHAR* packName, TCHAR* fileName)
+void UpdateFile(char* packName, char* fileName)
 {
 	// Get file data to update
 	FILE* file;
-	DWORD fileSize;
+	int fileSize;
+	errno_t ret;
 	
 	RemoveChar(fileName);
-	OpenFile(fileName, &file, _T("rb"));
+	ret = fopen_s(&file, fileName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", fileName, ret);
 	fileSize = GetFileSize(&file);
 	char* fileData = static_cast<char*>(malloc(fileSize));
-	ReadFile(&file, fileSize, fileData);
-	CloseFile(&file);
+	fread(fileData, fileSize, 1, file);
+	fclose(file);
 
 	// Get packfile to update
 	FILE* packFile;
-	DWORD packSize;
+	int packSize;
 
 	RemoveChar(packName);
-	OpenFile(packName, &packFile, _T("rb"));
+	ret = fopen_s(&packFile, packName, "rb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
 	packSize = GetFileSize(&packFile);
+
 	char* packData = static_cast<char*>(malloc(packSize));
-	ReadFile(&packFile, packSize, packData);
-	CloseFile(&packFile);
+	fwrite(packData, packSize, 1, packFile);
+	fclose(packFile);
 
 	// Write packfile to pack
 	PACKING pack;
 	SetPack(pack);
 
-	DWORD idx = 0;
+	int idx = 0;
 	DWORD64 type = 0;
 	ChangeCharToData(packData, idx, type);
 
 	if (type != pack.pi.type)
 	{
-		_tprintf(_T("It's not pack file!\n"));
+		printf("It's not pack file!\n");
 		return;
 	}
 	
 	idx += sizeof(DWORD64);
 	ChangeCharToData(packData, idx, pack.pi.fileNum);
-	idx += sizeof(DWORD);
+	idx += sizeof(int);
 	ChangeCharToDataArr(packData, pack.fi.fileSize, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 	ChangeCharToDataArr(packData, pack.fi.offset, idx, FILE_CNT);
-	idx += sizeof(DWORD) * FILE_CNT;
+	idx += sizeof(int) * FILE_CNT;
 
 
 	char cTmp[FILE_NAME] = { '\0', };
@@ -1007,27 +960,25 @@ void UpdateFile(TCHAR* packName, TCHAR* fileName)
 		{
 			cTmp[j] = *(packData + idx + i * FILE_NAME + j);
 		}
-
-		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cTmp,
-			FILE_NAME, pack.fi.fileName[i], FILE_NAME);
+		strcpy_s(cTmp, FILE_NAME, pack.fi.fileName[i]);
 	}
 
 	bool flag = false;
 	// Update packfile data through pack
 	for (int i = 0; i < pack.pi.fileNum; i++)
 	{
-		if (_tcscmp(fileName, pack.fi.fileName[i]) == 0)
+		if (strcmp(fileName, pack.fi.fileName[i]) == 0)
 		{
 			pack.fi.fileSize[i] = fileSize;
-			idx = sizeof(DWORD64) + sizeof(DWORD) 
-					+ sizeof(DWORD) * i; 
+			idx = sizeof(DWORD64) + sizeof(int) 
+					+ sizeof(int) * i; 
 			ChangeDataToChar(packData, idx, pack.fi.fileSize[i]);
 
 			pack.fi.offset[i]
 				= pack.fi.offset[pack.pi.fileNum - 1]
 				+ pack.fi.fileSize[pack.pi.fileNum - 1];
-			idx = sizeof(DWORD64) + sizeof(DWORD) + sizeof(DWORD) * FILE_CNT
-					+ sizeof(DWORD) * i;
+			idx = sizeof(DWORD64) + sizeof(int) + sizeof(int) * FILE_CNT
+					+ sizeof(int) * i;
 			ChangeDataToChar(packData, idx, pack.fi.offset[i]);
 			flag = true;
 			break;
@@ -1036,7 +987,7 @@ void UpdateFile(TCHAR* packName, TCHAR* fileName)
 
 	if (flag == false)
 	{
-		_tprintf(_T("%s doesn't exist in the packfile\n"), fileName);
+		printf("%s doesn't exist in the packfile\n", fileName);
 		free(fileData);
 		free(packData);
 		return;
@@ -1044,42 +995,44 @@ void UpdateFile(TCHAR* packName, TCHAR* fileName)
 	// Write pack to packfile
 	packSize += fileSize;
 	char* newData = static_cast<char*>(malloc(packSize));
-	memset(newData, _T('\0'), packSize);
+	memset(newData, '\0', packSize);
 	strcpy_s(newData, packSize, packData);
 	strcat_s(newData, packSize, fileData);
 
-	OpenFile(packName, &packFile, _T("wb"));
-	WriteFile(&packFile, packSize, newData);
-	CloseFile(&packFile);
+	ret = fopen_s(&packFile, packName, "wb");
+	if (ret != 0)
+		printf("Fail to open %s : %d\n", packName, ret);
+
+	fwrite(newData, packSize, 1, packFile);
+	fclose(packFile);
 
 	free(fileData);
 	free(packData);
 	free(newData);
-	_tprintf(_T("Update Selected File Complete!\n\n"));
+	printf("Update Selected File Complete!\n\n");
 }
 
-//=====================================================
+//=============================================================================
 
-void RemoveChar(TCHAR* fileName)
+void RemoveChar(char* fileName)
 {
 	for (; *fileName != '\0'; fileName++)
 	{
-		if ((_tcscmp(fileName, _T("\\")) == 0) || (_tcscmp(fileName, _T("\"")) == 0) ||
-			(_tcscmp(fileName, _T("/")) == 0) || (_tcscmp(fileName, _T(">")) == 0) ||
-			(_tcscmp(fileName, _T(":")) == 0) || (_tcscmp(fileName, _T("<")) == 0) ||
-			(_tcscmp(fileName, _T("*")) == 0) || (_tcscmp(fileName, _T("?")) == 0))
+		if ((strcmp(fileName, "\\") == 0) || (strcmp(fileName, "\"") == 0) ||
+			(strcmp(fileName, "/") == 0) || (strcmp(fileName, ">") == 0) ||
+			(strcmp(fileName, ":") == 0) || (strcmp(fileName, "<") == 0) ||
+			(strcmp(fileName, "*") == 0) || (strcmp(fileName, "?") == 0))
 		{
-			_tcscpy_s(fileName, sizeof(fileName + 1), fileName + 1);
+			strcpy_s(fileName, sizeof(fileName + 1), fileName + 1);
 			fileName--;
 		}
-		else if ((_tcscmp(fileName, _T(" ")) == 0) ||
-			(_tcscmp(fileName, _T("\t")) == 0))
+		else if ((strcmp(fileName, " ") == 0) || (strcmp(fileName, "\t")) == 0)
 		{
-			_tcscpy_s(fileName, sizeof(_T("_")), _T("_"));
+			strcpy_s(fileName, sizeof("_"), "_");
 		}
-		else if(_tcscmp(fileName, _T("\n")) == 0)
+		else if(strcmp(fileName, "\n") == 0)
 		{
-			_tcscpy_s(fileName, sizeof(_T("\0")), _T("\0"));
+			strcpy_s(fileName, sizeof("\0"), "\0");
 		}
 	}
 }
@@ -1090,13 +1043,27 @@ void SetPack(PACKING& pack)
 	pack.pi.fileNum = 0;
 }
 
-template <typename T>
-void ChangeCharToData(const char* input, const DWORD& idx, T& output)
+int GetFileSize(FILE** file)
 {
-	DWORD tmpIdx = idx;
-	DWORD dataSize = sizeof(output);
-	DWORD64 flag = 0x000000ff;
-	for (DWORD i = 0; i < dataSize; i++)
+	fseek(*file, 0, SEEK_END);
+	int size = ftell(*file);
+	fseek(*file, 0, SEEK_SET);
+
+	if (size == -1)
+		printf("Fail to get file size\n");
+
+	return size;
+}
+
+//=============================================================================
+
+template <typename T>
+void ChangeCharToData(const char* input, int idx, T output)
+{
+	int tmpIdx = idx;
+	int dataSize = sizeof(output);
+	__int64 flag = 0x000000ff;
+	for (int i = 0; i < dataSize; i++)
 	{
 		output += ((input[tmpIdx] & flag) << (i * 8));
 		tmpIdx++;
@@ -1104,14 +1071,14 @@ void ChangeCharToData(const char* input, const DWORD& idx, T& output)
 }
 
 template <typename T>
-void ChangeCharToDataArr(const char* input, T& output, const DWORD& idx, const DWORD& cnt)
+void ChangeCharToDataArr(const char* input, T output, int idx, int cnt)
 {
-	DWORD tmpIdx = idx;
-	DWORD dataSize = sizeof(output[0]);
-	DWORD64 flag = 0x000000ff;
-	for (DWORD i = 0; i < cnt; i++)
+	int tmpIdx = idx;
+	int dataSize = sizeof(output[0]);
+	__int64 flag = 0x000000ff;
+	for (int i = 0; i < cnt; i++)
 	{
-		for (DWORD j = 0; j < dataSize; j++)
+		for (int j = 0; j < dataSize; j++)
 		{
 			output[i] += ((input[tmpIdx] & flag) << (j * 8));
 			tmpIdx++;
@@ -1120,13 +1087,13 @@ void ChangeCharToDataArr(const char* input, T& output, const DWORD& idx, const D
 }
 
 template <typename T>
-void ChangeDataToChar(char* output, const DWORD& idx, const T& input)
+void ChangeDataToChar(char* output, int idx, T input)
 {
-	DWORD tmpIdx = idx;
-	DWORD dataSize = sizeof(input);
-	DWORD64 flag = 0x000000ff;
+	int tmpIdx = idx;
+	int dataSize = sizeof(input);
+	__int64 flag = 0x000000ff;
 
-	for (DWORD i = 0; i < dataSize; i++)
+	for (int i = 0; i < dataSize; i++)
 	{
 		output[tmpIdx] = ((input >> (i * 8)) & flag);
 		tmpIdx++;
@@ -1134,20 +1101,19 @@ void ChangeDataToChar(char* output, const DWORD& idx, const T& input)
 }
 
 template <typename T>
-void ChangeDataArrToChar(char* output, const T& input, const DWORD& idx, const DWORD& cnt)
+void ChangeDataArrToChar(char* output, T input, int idx, int cnt)
 {
-	DWORD tmpIdx = idx;
-	DWORD dataSize = sizeof(input[0]);
-	DWORD64 flag = 0x000000ff;
+	int tmpIdx = idx;
+	int dataSize = sizeof(input[0]);
+	__int64 flag = 0x000000ff;
 
-	for (DWORD i = 0; i < cnt; i++)
+	for (int i = 0; i < cnt; i++)
 	{
-		for (DWORD j = 0; j < dataSize; j++)
+		for (int j = 0; j < dataSize; j++)
 		{
 			output[tmpIdx] = ((input[i] >> (j * 8)) & flag);
 			tmpIdx++;
 		}
 	}
-
 }
 ```

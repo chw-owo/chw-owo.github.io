@@ -17,14 +17,12 @@ toc_sticky: true
 ```c++
 #include <iostream>
 
-// Assignment00
-template<typename T>
-void UnsignedDecToBin(const T& input)
+void DecimalToBinary(unsigned char input)
 {
-	T flag = 0;
+	unsigned char flag = 0;
 	printf("%u 의 바이너리 : ", input);
 
-	for (short i = (sizeof(input)*8)-1; i >= 0; i--)
+	for (short i = (sizeof(input) * 8) - 1; i >= 0; i--)
 	{
 		flag = 1 << i;
 
@@ -36,21 +34,14 @@ void UnsignedDecToBin(const T& input)
 	printf("\n");
 }
 
-void Assignment00()
-{
-	unsigned char input = 40;
-	UnsignedDecToBin(input);
-}
-
 int main()
 {
-	Assignment00();
+	DecimalToBinary(40);
 }
 ```
-전체 코드는 위와 같다. char 외에 short, int도 번역할 수 있도록 template으로 구현했다. 
 
 ```c++
-T flag = 0;
+unsigned char flag = 0;
 printf("%u 의 바이너리 : ", input);
 
 for (short i = (sizeof(input)*8)-1; i >= 0; i--)
@@ -59,7 +50,7 @@ for (short i = (sizeof(input)*8)-1; i >= 0; i--)
     ...
 }
 ```
-우선 bitflag를 만든다. 그 후 (sizeof(input) * 8) - 1)부터 시작하여 0까지, 1씩 줄여가며 1을 left shift 한다. input이 char이라면 char의 크기는 1이므로 (1 * 8) - 1, 7부터 0까지 총 8번 반복문을 시행하며 그 과정을 통해 아래와 같은 flag들이 만들어진다. 
+우선 bitflag를 만든다. 그 후 (sizeof(input) * 8) - 1 부터 시작하여 0까지, 1씩 줄여가며 1을 left shift 한다. input이 char이라면 char의 크기는 1이므로 (1 * 8) - 1, 7부터 0까지 총 8번 반복문을 시행하며 그 과정을 통해 아래와 같은 flag들이 만들어진다. 
 
 ```
 10000000    // 1 << 7
@@ -105,8 +96,7 @@ for (short i = (sizeof(input)*8)-1; i >= 0; i--)
 ```c++
 #include <iostream>
 
-// Assignement01
-void Assignment01()
+void BitController()
 {
 	unsigned short value = 0;
 	unsigned short flag = 0;
@@ -146,7 +136,7 @@ void Assignment01()
 
 int main()
 {
-	Assignment01();
+	BitController();
 }
 ```
 
@@ -230,8 +220,7 @@ Assignment 1에서 사용했던 대로, short의 비트수만큼 flag를 하나�
 ```c++
 #include <iostream>
 
-// Assignement02
-void Assignment02()
+void ByteController()
 {
 	unsigned int value = 0;
 	unsigned char index, input, tmp;
@@ -274,10 +263,10 @@ void Assignment02()
 
 int main()
 {
-	Assignment02();
+	ByteController();
 }
 ```
-전체 코드는 위와 같다. 이 코드는 32bit Window 환경에서 작성되었기 때문에 int는 32bit의 크기를 가진다. 
+전체 코드는 위와 같다. 
 
 ```c++
 unsigned int value = 0;

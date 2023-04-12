@@ -25,7 +25,7 @@ toc_sticky: true
 
 <br/>
 
-# **과제 기본 프레임**
+# **과제 기본 양식**
 
 ```c++
 main()
@@ -86,7 +86,6 @@ TwoStar - 2칸씩 우측 이동 / **  출력
 
 ThreeStar - 3칸씩 우측 이동 / *** 출력
 
-
 **8)** 우측 화면에 닿으면 해당 객체는 파괴된다. 이때, 동적할당을 해제할 때는 할당했던 함수와 같은 계층에서 처리하도록 하는 것이 좋다. 
 
 **9)** 원활한 확인을 위해 메인 루프 하단에는 Sleep(10~50) 을 하여 속도를 늦춘다.   
@@ -99,7 +98,6 @@ ThreeStar - 3칸씩 우측 이동 / *** 출력
 
 ```c++
 #include <Windows.h>
-#include <tchar.h>
 #include <stdio.h>
 #include <conio.h>
 #include "MovingStars.h"
@@ -178,7 +176,7 @@ void Render()
 	for (int i = 0; i < STAR_CNT; i++)
 	{
 		if (stars[i] == nullptr)
-			_tprintf(_T("\n"));
+			printf("\n");
 		else
 			stars[i]->Render();
 	}
@@ -191,7 +189,10 @@ void Render()
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <tchar.h>
+
+#define ONE 1
+#define TWO 2
+#define THREE 3
 #define MAX 75
 
 class BaseObject
@@ -207,8 +208,8 @@ public:
 	int _x = 0;
 	int _interval = 0;
 	int _starSize = 0;
-	TCHAR* _star;
-	TCHAR _line[MAX + 1] = { _T('\0'),};
+	char* _star;
+	char _line[MAX + 1] = { '\0',};
 };
 
 class Star : public BaseObject
@@ -236,22 +237,16 @@ class ThreeStar : public Star
 public:
 	void Initialize();
 };
-
 ```
 
 **MovingStars.cpp**
 
 ```c++
 #include "MovingStars.h"
-#include <tchar.h>
 
-#define ONE 1
-#define TWO 2
-#define THREE 3
-
-TCHAR oneStar[ONE + 1] = _T("*");
-TCHAR twoStar[TWO + 1] = _T("**");
-TCHAR threeStar[THREE + 1] = _T("***");
+char oneStar[ONE + 1] = "*";
+char twoStar[TWO + 1] = "**";
+char threeStar[THREE + 1] = "***";
 
 void Star::Update()
 { 
@@ -266,7 +261,7 @@ void Star::Update()
 	int i = 0;
 
 	for (; i < _x; i++)
-		_line[i] = _T(' ');
+		_line[i] = ' ';
 
 	for (int j = 0; j < _starSize; j++)
 	{
@@ -275,9 +270,9 @@ void Star::Update()
 	}
 
 	for (; i < MAX; i++)
-		_line[i] = _T(' ');
+		_line[i] = ' ';
 
-	_line[i] = _T('\n');
+	_line[i] = '\n';
 }
 
 void Star::Render()
@@ -286,7 +281,7 @@ void Star::Render()
 		return;
 
 	for (int i = 0; i <= MAX; i++)
-		_tprintf(_T("%c"), _line[i]);
+		printf("%c", _line[i]);
 }
 
 bool Star::CheckDead()

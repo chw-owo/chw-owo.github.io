@@ -36,14 +36,6 @@ would block은 수신측이 아직 준비가 되지 않아 송신측이 기다�
 
 만약 recv가 안돼서 수신 버퍼가 계속 늘어날 경우 이론적으로는 Nonpaged pool 문제도 발생할 수 있다. 수신 버퍼는 기본으로 최대 2MB를 차지하는데 500명만 연결되어도 1GB가 된다. 이런 경우 서버의 OS가 Nonpaged pool 문제로 뻗어버릴 수도 있다. 하지만 의도적으로 connect를 하고 쓰레기 메시지를 때려 붓는 상황이 아니고서야 일반적으로 이런 상황은 생기지 않는다. 
 
-## **+) CGCII 프라우드넷 도발 사건**
-
-http://1st.gamecodi.com/board/zboard.php?id=GAMECODI_Talkdev&page=1&sn1=&divpage=1&sn=on&ss=on&sc=on&keyword=%C7%C1%B6%F3%BF%EC%B5%E5%B3%DD%20%B5%B5%B9%DF%20%BB%E7%B0%C7&select_arrange=headnum&desc=asc&no=3321 
-
-2012년 한 MMORPG 게임에 서버엔진으로 'CGCII 6'이, P2P엔진으로 '프라우드넷'이 사용되었다. 이것이 한국에 서비스할 때는 큰 문제가 없었는데, 중국에 서비스를 하며 열악한 네트워크 환경으로 인해 P2P 접속이 끊기는 문제가 빈번하게 발생하게 되었다. 
-
-그러던 중 2015년 프라우드넷 신제품 발표 질답 시간에 CGCII 개발자 분께서 2012년의 상황을 두고, "TCP처리에 결함이 있어 송수신이 몰리는 상황에 빨리 트래픽을 빼주지 못했던 것 아니냐"는 의견을 제시하며 갈등이 시작되었다. 이에 대해 프라우드넷 측은 혼잡 붕괴(Congestion Collapse)로 인해 라우터 등 하드웨어에 문제가 생겼으며 이는 프라우드넷만의 문제는 아니다"고 설명했다. 
-
 <br/>
 
 # **2. recv**

@@ -177,9 +177,7 @@ int main()
 
 send, recv는 block 소켓일 때 block 함수로 작동한다. 그러나 위와 같이 Server에서 accept만 하고 recv를 하지 않아도 send는 무사히 반환이 되는 것을 볼 수 있다. 이는 send 함수가 직접 전송을 하는 함수가 아니라 소켓의 send buffer에 메시지를 넣는 역할만 하는 함수이기 때문이다. 실제로 전송을 하는 것은 TCP 계층에서 담당하며, send buffer에 메시지를 넣은 이후에는 다음 작업으로 넘어갈 수 있다.
 
-recv 함수 역시 직접 수신을 하는 게 아니라 recv buffer에 들어온 메시지를 꺼내오는 작업만을 한다. 하지만 이 경우 send와는 달리 recv buffer에 메시지가 없다면 작업을 수행할 수 없으므로 메시지가 들어올 때까지 block이 걸린다. 그리고 메시지가 들어와서 block이 풀리면, 그때 recv buffer에 들어온 메시지를 사용자가 세팅한 buffer에 복사한다는 게 일반적인 설명이다.
-
-그러나 실제로는 block 걸리지 않은 상태에서만 recv buffer를 통한 복사가 이루어진다. block이 걸린 상태에서 메시지가 들어올 경우, recv buffer를 통하는 대신 TCP가 사용자가 세팅한 buffer에 직접 데이터를 입력한다. 
+recv() 역시 직접 수신을 하는 게 아니라 recv buffer에 들어온 메시지를 꺼내오는 작업을 한다. 하지만 이 경우 send와는 달리 recv buffer에 메시지가 없다면 작업을 수행할 수 없으므로 메시지가 들어올 때까지 block이 걸린다. block 걸리지 않았을 때는 recv buffer에서 사용자 버퍼로 복사가 이루어지고, block이 걸렸을 땐 TCP가 사용자 버퍼에 직접 데이터를 입력하다가 입력이 끝나면 return 된다.
 
 <br/> 
 

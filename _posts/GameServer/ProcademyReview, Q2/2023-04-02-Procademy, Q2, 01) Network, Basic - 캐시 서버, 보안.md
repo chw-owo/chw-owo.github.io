@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 01) Network - 캐시 서버, 보안
+title: Procademy, Q2, 01) Network, Basic - 캐시 서버, 보안
 categories: ProcademyReview
 tags: 
 toc: true

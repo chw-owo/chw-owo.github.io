@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 06) Network - TCP-UDP, socket
+title: Procademy, Q2, 06) Network, Basic - TCP-UDP, socket
 categories: ProcademyReview
 tags: 
 toc: true

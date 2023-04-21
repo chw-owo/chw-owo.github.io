@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 08) Network - Ack, Nagle
+title: Procademy, Q2, 08) Network, TCP - Ack, Nagle
 categories: ProcademyReview
 tags: 
 toc: true

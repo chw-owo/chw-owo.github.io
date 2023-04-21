@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 02) Network - OSI 7 Layer
+title: Procademy, Q2, 02) Network, Basic - OSI 7 Layer
 categories: ProcademyReview
 tags: 
 toc: true

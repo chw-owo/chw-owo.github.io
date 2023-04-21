@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 04) Network - L2에서 L7까지
+title: Procademy, Q2, 04) Network, Basic - L2에서 L7까지
 categories: ProcademyReview
 tags: 
 toc: true

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 07) Network - TCP, fragmentation
+title: Procademy, Q2, 07) Network, TCP - fragmentation
 categories: ProcademyReview
 tags: 
 toc: true

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 05) Network - ping, p2p, vpn, dns
+title: Procademy, Q2, 05) Network, Basic - ping, p2p, vpn, dns
 categories: ProcademyReview
 tags: 
 toc: true

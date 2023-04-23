@@ -25,15 +25,39 @@ Sync 함수를 호출하면 호출한 시점에 바로 작업이 이루어진다
 
 <br/>
 
-# **2. Overlapped 모델**
+# **2. 비동기 IO의 기본**
 
-Overlapped 모델은 send, recv를 Async-NonBlocking 방식으로 사용하는 모델이다. 이 경우 WSARecv, WSASend, AcceptEx, ConnectEx 등의 함수를 호출하며 WSABUF, WSAOVERLAPPED 등의 구조체를 사용한다. 함수 호출 결과는 Event 혹은 Callback으로 통지 받을 수 있다. AcceptEx, ConnectEx의 경우 설정이 다소 복잡하므로 이 포스트 예제들은 WSARecv, WSASend만 사용하고 해당 함수들은 추후에 다시 다룬다. 
+네트워크를 포함한 장치 IO는 컴퓨터가 수행하는 작업들 중 가장 느리고 예측하기 어렵다. 따라서 비동기 IO를 사용하면 리소스 사용에 대한 성능을 개선할 수 있다. 스레드의 비동기 IO 요청은 IO 작업을 수행할 장치 (이더넷, 디스크 등)의 디바이스 드라이버로 전달되며, 드라이버가 장치로부터의 응답을 대기하다가 완료 통지를 보낸다. 따라서 스레드는 IO 요청이 완료될 때까지 대기할 필요가 없다.
+
+```c++
+typedef struct _OVERLAPPED
+{
+	DWORD Internal;
+	DWORD InternalHigh;
+	DWORD Offset;
+	DWORD OffsetHigh;
+	HANDLE hEvent;
+}
+OVERLAPPED, *LPOVERLAPPED;
+```
+
+비동기 IO를 수행할 땐 OVERLAPPED 구조체 주소를 전달한다. 이때 Overlapped은 스레드가 다른 작업을 수행하는 동안 IO 작업을 시작하는 중첩을 의미한다. Internal, Internal High는 디바이스 드라이버에 의해 설정되는 값으로 IO 완료 여부 확인에 쓸 수 있다. Offset, OffsetHigh는 파일 IO 시 파일 시작 위치 전달 용도로 사용하며 그 외의 경우 0으로 설정한다. hEvent는 Alertable IO 통지 방법에서 사용된다.
+
+비동기 IO 요청이 완료되면 요청 시 전달했던 OVERLAPPED 구조체 주소를 돌려준다. 따라서 이에 추가적인 컨텍스트 정보를 포함시켜서 유용하게 활용할 수 있다. 예를 들어 OVERLAPPED 구조체를 상속하는 클래스를 만든 뒤, 추가적인 정보를 저장한다면 OVERLAPPED 구조체 주소를 캐스팅하여 클래스에 추가되었던 컨텍스트 정보에도 접근할 수 있게 된다. 이 방법은 Network Library 제작 파트에서 실제로 사용된다. 
+
+이때 유의할 것은, 비동기 IO 요청 시 사용되는 데이터 버퍼와 OVERLAPPED 구조체는 IO 요청이 완료될 때까지 옮겨지거나 삭제되어서는 안된다. 디바이스 드라이버로 요청이 전달될 때 메모리 복사에 드는 시간을 절약하기 위해 실제 블록이 아닌 주소를 전달하기 때문이다. 만약 스택에 해당 버퍼와 구조체를 선언한다면 함수가 반환되어 스택에 생성되었던 값들이 삭제되지는 않는지 유의해야 한다. 
+
+<br/>
+
+# **3. Overlapped 모델**
+
+Overlapped 모델은 send, recv를 Async-NonBlocking 방식으로 사용하는 모델이다. 이 경우 WSARecv, WSASend, AcceptEx, ConnectEx 등의 함수를 호출하며 WSABUF, WSAOVERLAPPED 등의 구조체를 사용한다. 함수 호출 결과는 Event 혹은 콜백으로 통지 받을 수 있다. AcceptEx, ConnectEx의 경우 설정이 다소 복잡하므로 이 포스트 예제들은 WSARecv, WSASend만 사용하고 해당 함수들은 추후에 다시 다룬다. 
 
 <br/> 
 
-# **3. Event 기반**
+# **4. Event 기반 통지**
 
-우선 비동기 입출력을 지원하는 소켓과 통지를 위한 이벤트 객체를 생성한다. 그리고 비동기 입출력 함수를 호출할 때 앞서 만든 이벤트 객체를 같이 넘긴다. 비동기 작업이 바로 완료되지 않으면 Error Code로 WSA_IO_PENDING 뜨고, 완료되면 OS가 이벤트 객체를 singaled 상태로 만드는데 이는 WSAWaitForMultipleEvents 함수로 확인할 수 있다. 이후 WSAGetOvelappedResult 를 호출하여 입출력 결과를 확인하고 이에 따른 데이터 처리를 한다. 
+우선 비동기 입출력 지원 소켓과 통지용 이벤트 객체를 생성한다. 그리고 입출력 함수 호출 시 이벤트 객체를 같이 넘긴다. 비동기 작업이 완료되지 않으면 PENDING 예외 코드가 뜨고, 완료되면 OS가 이벤트 객체를 singaled 상태로 만드는데 이는 WSAWaitForMultipleEvents 함수로 확인할 수 있다. 이후 WSAGetOvelappedResult를 호출하여 입출력 결과를 확인하고 이에 따른 데이터 처리를 한다. 
 
 **Client.cpp**
 
@@ -252,11 +276,11 @@ int main()
 ```
 <br/> 
 
-# **4. Callback 기반**
+# **5. Alertable IO**
 
 ![image](https://user-images.githubusercontent.com/96677719/233782138-a706cb3a-5ad0-4fa4-868a-3d201bbc0662.png)
 
-이 경우 이벤트 객체를 만들어서 넘기는 대신 비동기 IO가 완료 시 호출할 함수, 즉 완료 루틴을 만들고 그 시작 주소를 넘긴다. 이때 함수를 호출한 스레드는 WaitFor~ObjectsEx, SleepEx 등의 함수를 통해 대기 상태, 즉 Alertable Wait 상태로 만든다. 비동기 IO가 완료되면 OS는 완료 루틴을 호출하고, 완료 루틴 호출이 끝나면 스레드가 Alertable Wait 상태에서 빠져나오게 된다. 이 외의 기본적인 구조 및 함수 사용은 Event 기반 방식과 동일하다. 
+시스템은 스레드별로 Async Procedure Call, APC 큐를 하나씩 생성한다. 이때 WaitForObjectEx, SleepEx등의 함수를 사용하면 비동기 IO 요청을 전달하는 함수를 호출할 때 디바이스 드라이버에게 IO 작업 완료 통지를 APC 큐에 삽입해달라고 요청할 수 있다. 이는 Completion Routine, 완료 루틴이라 불리는 콜백 함수 주소를 필요로 한다. 완료 루틴은 반드시 아래 형태로 구현되어야 한다. 
 
 ```c++
 void CALLBACK CompletionRoutine 
@@ -266,8 +290,20 @@ void CALLBACK CompletionRoutine
     LPWSAOVERLAPPED lpOverlapped,
     DWORD           dwFlags
 );
+```
+
+APC 큐 항목을 처리할 땐 스레드가 자신을 Alertable로 변경하여 인터럽트 가능한 상태임을 알려야 한다. 그러면 시스템은 APC 큐를 확인하는데, 항목이 있을 경우 스레드를 대기 상태로 바꾸지 않고 항목 하나를 Dequeue하여 호출한다. 루틴이 반환되면 항목이 더 있는지 확인, 큐가 비워질 때까지 반복한다. 항목이 없을 때 상태를 바꾸면 스레드가 정지되며, 항목이 삽입될 때 수행을 재개한다. 
+
+이 경우 콜백 함수를 반드시 필요로 하기 때문에 코드를 이해하기 어렵게 만든다. 또, IO 작업을 요청한 스레드가 반드시 완료 통지도 함께 처리해야 한다는 스레딩 문제가 있다. 단일 스레드가 여러번의 IO를 수행한 경우 각 IO 요청 별로 발생하는 완료 통지를 자신이 모두 처리해야 한다. 따라서 멀티스레드 환경에서 부하 분산을 제대로 수행하기 어렵다. 
+
+<br/>
+
+# **6. Callback 기반 통지**
+
+앞서 설명한 APC 큐를 활용하는 방식이다. 비동기 IO가 완료되면 OS는 완료 루틴을 호출하고, 완료 루틴 호출이 끝나면 스레드가 Alertable 상태에서 빠져나오게 된다. 이 외의 기본적인 구조 및 함수 사용은 Event 기반 방식과 동일하다. 
 
 // Example
+```c++
 void CALLBACK RecvCallback(DWORD error, DWORD recvLen, 
                             LPWSAOVERLAPPED overlapped, DWORD flags)
 {
@@ -275,7 +311,7 @@ void CALLBACK RecvCallback(DWORD error, DWORD recvLen,
 }
 ```
 
-완료 루틴 함수는 위와 같은 형태를 가진다. 매개변수는 각각 오류 발생 시 반환 값, 전송 바이트 수, 비동기 입출력 함수 호출 시 넘겨줄 WSAOVERLAPPED 구조체의 주소, 플래그를 의미한다. 함수 포인터를 nullptr을 넘겼던 WSARecv, WSASend의 마지막 인자에 전달하면 해당 작업이 끝났을 때 위 그림처럼 APC 큐를 차례로 비우며 함수를 호출한다. Alertable wait에 한번만 진입해도 큐를 모두 비우며, 다 비운 이후에는 Aleratble Wait 상태에서 빠져나와 이후 코드를 실행한다. 
+이는 완료 루틴의 예시이다. 매개변수는 각각 오류 발생 시 반환 값, 전송 바이트 수, 비동기 입출력 함수 호출 시 넘겨줄 WSAOVERLAPPED 구조체의 주소, 플래그를 의미한다. 함수 포인터를 nullptr을 넘겼던 WSARecv, WSASend의 마지막 인자에 전달하면 해당 작업이 끝났을 때 위 그림처럼 APC 큐를 차례로 비우며 함수를 호출한다. Alertable 상태에 한번만 진입해도 큐를 모두 비우며, 다 비운 이후에는 Aleratble 상태에서 빠져나와 이후 코드를 실행한다. 
 
 **Server.cpp**
 
@@ -336,7 +372,7 @@ int main()
 }
 ```
 
-이는 한번에 최대 64개만 관찰할 수 있는 이벤트 객체와 달리, SleepEx 한번으로도 쌓여있는 모든 완료 루틴을 처리할 수 있다는 점에서 더 간편하다. 그러나 AcceptEx 등은 비동기 함수임에도 콜백 함수를 사용을 지원하지는 않는다는 한계가 있다. 또 APC 큐는 그것을 가진 스레드만이 처리할 수 있어서 일 분배 측면에서의 아쉬움이 있으며, 빈번한 Alertable Wait 인한 성능 저하 역시 문제가 된다.
+이는 한번에 최대 64개만 관찰할 수 있는 이벤트 객체와 달리, SleepEx 한번으로도 쌓여있는 모든 완료 루틴을 처리할 수 있다는 점에서 더 간편하다. 그러나 AcceptEx 등은 비동기 함수임에도 콜백 함수를 사용을 지원하지는 않는다는 한계가 있다. 또 APC 큐는 그것을 가진 스레드만이 처리할 수 있어서 부하 분산을 하기 어려우며, 빈번한 Alertable Wait 인한 성능 저하 역시 문제가 된다.
 
 ```c++
 struct Session

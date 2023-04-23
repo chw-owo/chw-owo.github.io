@@ -1,5 +1,5 @@
 ---
-title: Network Library 03) Server Service
+title: Network Library 04) Packet Session
 categories: RookissGameServer
 tags: 
 toc: true

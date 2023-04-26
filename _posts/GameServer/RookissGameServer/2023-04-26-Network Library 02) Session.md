@@ -252,7 +252,7 @@ int main()
 
 Session을 GameSession으로 상속 받아서 OnRecv, OnSend를 오버라이딩한다. OnRecv, OnSend는 콘텐츠 단에 작업이 이루어졌음을 통지하는 용도의 함수들로, Server 예제에서는 각각 recv 길이를 출력하고 Send()를 호출, send 한 길이를 출력하는 용도로 오버라이딩 되고 있다. 
 
-이후 해당 세션과 IocpCore의 shared_ptr을 넣고 ServerService를 생성한다. 이를 바탕으로 Start()를 실행하면 위에서 정의한 Server Service의 동작들이 자동으로 실행되며, 이후 스레드 매니저를 통해 5개의 스레드를 생성하여 IocpCore에게 반복해서 Dispatch 하도록 시킨다.
+이후 해당 세션과 IocpCore의 shared_ptr을 넣고 ServerService를 생성한다. 이를 바탕으로 Start()를 실행하면 위에서 정의한 Server Service의 동작들이 자동으로 실행되며, 이후 IocpCore에게 반복해서 Dispatch 하도록 시킨다.
 
 **DummyClient.cpp**
 
@@ -328,7 +328,7 @@ int main()
 
 DummyClient는 서버에 연결하는 세션이 필요하다. 따라서 Session을 상속 받고 On- 함수들을 오버라이딩 한 ServerSession을 만든다. OnConnected는 서버에 연결되었음을 출력하고 sendBuffer의 데이터를 Send()한다. OnRecv는 1초 간 sleep 한 뒤 sendBuffer의 데이터를 Send()하며, OnSend에서는 send 한 길이를 출력한다.
 
-이후 Server에서와 마찬가지로 해당 세션과 IocpCore의 shared_ptr을 넣고 ClientService를 생성한다. 이를 바탕으로 Start()를 실행하면 위에서 정의한 Client Service의 동작들이 자동으로 실행되며, 이후 스레드 매니저를 통해 2개의 스레드를 생성하여 IocpCore에게 반복해서 Dispatch 하도록 시킨다.
+이후 Server에서와 마찬가지로 해당 세션과 IocpCore의 shared_ptr을 넣고 ClientService를 생성한다. 이를 바탕으로 Start()를 실행하면 위에서 정의한 Client Service의 동작들이 자동으로 실행되며, 이후 IocpCore에게 반복해서 Dispatch 하도록 시킨다.
 
 **IocpCore.cpp**
 

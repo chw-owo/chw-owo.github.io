@@ -1,5 +1,5 @@
 ---
-title: Packet 01) Buffer Helpers
+title: Packet 02) Packet Serialization
 categories: RookissGameServer
 tags: 
 toc: true

@@ -207,7 +207,7 @@ python의 jinja를 시용하여 새로운 종류의 패킷을 등록할 때마�
 
 **PacketGenerator.py**
 
-```py
+```python
 import argparse
 import jinja2
 import ProtoParser
@@ -294,15 +294,15 @@ enum : uint16
 {
 {%- for pkt in parser.total_pkt %}
 	PKT_{{pkt.name}} = {{pkt.id}},
-{%- endfor %}
+{\%\- endfor \%\}
 };
 
 // Custom Handlers
 bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
 
-{%- for pkt in parser.recv_pkt %}
+{\%\- for pkt in parser.recv_pkt \%\}
 bool Handle_{{pkt.name}}(PacketSessionRef& session, Protocol::{{pkt.name}}& pkt);
-{%- endfor %}
+{\%\- endfor \%\}
 
 class {{output}}
 {
@@ -312,9 +312,9 @@ public:
 		for (int32 i = 0; i < UINT16_MAX; i++)
 			GPacketHandler[i] = Handle_INVALID;
 
-{%- for pkt in parser.recv_pkt %}
+{\%\- for pkt in parser.recv_pkt \%\}
 		GPacketHandler[PKT_{{pkt.name}}] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::{{pkt.name}}>(Handle_{{pkt.name}}, session, buffer, len); };
-{%- endfor %}
+{\%\- endfor \%\}
 	}
 
 	static bool HandlePacket(PacketSessionRef& session, BYTE* buffer, int32 len)
@@ -323,9 +323,9 @@ public:
 		return GPacketHandler[header->id](session, buffer, len);
 	}
 
-{%- for pkt in parser.send_pkt %}
+{\%\- for pkt in parser.send_pkt \%\}
 	static SendBufferRef MakeSendBuffer(Protocol::{{pkt.name}}& pkt) { return MakeSendBuffer(pkt, PKT_{{pkt.name}}); }
-{%- endfor %}
+{\%\- endfor \%\}
 
 private:
 	template<typename PacketType, typename ProcessFunc>

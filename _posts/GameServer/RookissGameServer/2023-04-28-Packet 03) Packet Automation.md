@@ -292,9 +292,9 @@ extern PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
 enum : uint16
 {
-{% raw %}{%- for pkt in parser.total_pkt %}{% endraw %}
-	PKT_{{pkt.name}} = {{pkt.id}},
-{% raw %}{%- endfor %}{% endraw %}
+	{% raw %}{%- for pkt in parser.total_pkt %}{% endraw %}
+		PKT_{{pkt.name}} = {{pkt.id}},
+	{% raw %}{%- endfor %}{% endraw %}
 };
 
 // Custom Handlers
@@ -303,7 +303,6 @@ bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
 {% raw %}{%- for pkt in parser.recv_pkt %}{% endraw %}
 bool Handle_{% raw %}{{pkt.name}}{% endraw %}(PacketSessionRef& session, Protocol::{% raw %}{{pkt.name}}{% endraw %}& pkt);
 {% raw %}{%- endfor %}{% endraw %}
-
 class {% raw %}{{output}}{% endraw %}
 {
 public:
@@ -312,9 +311,10 @@ public:
 		for (int32 i = 0; i < UINT16_MAX; i++)
 			GPacketHandler[i] = Handle_INVALID;
 
-{% raw %}{%- for pkt in parser.recv_pkt %}{% endraw %}
+	{% raw %}{%- for pkt in parser.recv_pkt %}{% endraw %}
 		GPacketHandler[PKT_{% raw %}{{pkt.name}}{% endraw %}] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::{% raw %}{{pkt.name}}{% endraw %}>(Handle_{% raw %}{{pkt.name}}{% endraw %}, session, buffer, len); };
-{% raw %}{%- endfor %}{% endraw %}
+	{% raw %}{%- endfor %}{% endraw %}
+
 	}
 
 	static bool HandlePacket(PacketSessionRef& session, BYTE* buffer, int32 len)
@@ -323,9 +323,9 @@ public:
 		return GPacketHandler[header->id](session, buffer, len);
 	}
 
-{% raw %}{%- for pkt in parser.send_pkt %}{% endraw %}
-	static SendBufferRef MakeSendBuffer(Protocol::{% raw %}{{pkt.name}}{% endraw %}& pkt) { return MakeSendBuffer(pkt, PKT_{% raw %}{{pkt.name}}{% endraw %}); }
-{% raw %}{%- endfor %}{% endraw %}
+	{% raw %}{%- for pkt in parser.send_pkt %}{% endraw %}
+		static SendBufferRef MakeSendBuffer(Protocol::{% raw %}{{pkt.name}}{% endraw %}& pkt) { return MakeSendBuffer(pkt, PKT_{% raw %}{{pkt.name}}{% endraw %}); }
+	{% raw %}{%- endfor %}{% endraw %}
 
 private:
 	template<typename PacketType, typename ProcessFunc>

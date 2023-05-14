@@ -280,7 +280,7 @@ class Packet:
 		self.id = id
 ```
 
-위와 같이 python으로 작동하는 parser - generator를 만들고 나면 아래와 같이 {{ }}, {% %} 기호를 통해 문자열을 추출하여 패킷을 자동 등록할 수 있다. 
+위와 같이 python으로 작동하는 parser - generator를 만들고 나면 아래와 같이 {% raw %}{{ }}{% endraw %}, {% raw %}{% %}{% endraw %} 기호를 통해 문자열을 추출하여 패킷을 자동 등록할 수 있다. 
 
 **PakcetHandler.h**
 ```c++

@@ -207,7 +207,7 @@ python의 jinja를 시용하여 새로운 종류의 패킷을 등록할 때마�
 
 **PacketGenerator.py**
 
-```py
+```python
 import argparse
 import jinja2
 import ProtoParser
@@ -242,7 +242,7 @@ if __name__ == '__main__':
 
 **ProtoParser.py**
 
-```py
+```python
 class ProtoParser():
 	def __init__(self, start_id, recv_prefix, send_prefix):
 		self.recv_pkt = []	# 수신 패킷 목록
@@ -292,19 +292,19 @@ extern PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
 enum : uint16
 {
-{%- for pkt in parser.total_pkt %}
+{% raw %}{%- for pkt in parser.total_pkt %}{% endraw %}
 	PKT_{{pkt.name}} = {{pkt.id}},
-{%- endfor %}
+{% raw %}{%- endfor %}{% endraw %}
 };
 
 // Custom Handlers
 bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len);
 
-{%- for pkt in parser.recv_pkt %}
-bool Handle_{{pkt.name}}(PacketSessionRef& session, Protocol::{{pkt.name}}& pkt);
-{%- endfor %}
+{% raw %}{%- for pkt in parser.recv_pkt %}{% endraw %}
+bool Handle_{% raw %}{{pkt.name}}{% endraw %}(PacketSessionRef& session, Protocol::{% raw %}{{pkt.name}}{% endraw %}& pkt);
+{% raw %}{%- endfor %}{% endraw %}
 
-class {{output}}
+class {% raw %}{{output}}{% endraw %}
 {
 public:
 	static void Init()
@@ -312,9 +312,9 @@ public:
 		for (int32 i = 0; i < UINT16_MAX; i++)
 			GPacketHandler[i] = Handle_INVALID;
 
-{%- for pkt in parser.recv_pkt %}
-		GPacketHandler[PKT_{{pkt.name}}] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::{{pkt.name}}>(Handle_{{pkt.name}}, session, buffer, len); };
-{%- endfor %}
+{% raw %}{%- for pkt in parser.recv_pkt %}{% endraw %}
+		GPacketHandler[PKT_{% raw %}{{pkt.name}}{% endraw %}] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::{% raw %}{{pkt.name}}{% endraw %}>(Handle_{% raw %}{{pkt.name}}{% endraw %}, session, buffer, len); };
+{% raw %}{%- endfor %}{% endraw %}
 	}
 
 	static bool HandlePacket(PacketSessionRef& session, BYTE* buffer, int32 len)
@@ -323,9 +323,9 @@ public:
 		return GPacketHandler[header->id](session, buffer, len);
 	}
 
-{%- for pkt in parser.send_pkt %}
-	static SendBufferRef MakeSendBuffer(Protocol::{{pkt.name}}& pkt) { return MakeSendBuffer(pkt, PKT_{{pkt.name}}); }
-{%- endfor %}
+{% raw %}{%- for pkt in parser.send_pkt %}{% endraw %}
+	static SendBufferRef MakeSendBuffer(Protocol::{% raw %}{{pkt.name}}{% endraw %}& pkt) { return MakeSendBuffer(pkt, PKT_{% raw %}{{pkt.name}}{% endraw %}); }
+{% raw %}{%- endfor %}{% endraw %}
 
 private:
 	template<typename PacketType, typename ProcessFunc>

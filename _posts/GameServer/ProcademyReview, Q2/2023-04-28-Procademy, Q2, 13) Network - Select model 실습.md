@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 13) Network - select client 실습
+title: Procademy, Q2, 13) Network - Select model 실습
 categories: ProcademyReview
 tags: 
 toc: true
@@ -31,6 +31,8 @@ select의 시간 값을 NULL로 하면 내가 움직이지 않을 땐 다른 유
 # **2. 실습 코드**
 
 접속자를 관리하는 List<Player*>에는 직접 구현한 List를 사용했다. 
+
+## **1) Client**
 
 **Message.h**
 ```c++
@@ -413,6 +415,420 @@ int main(int argc, char* argv[])
 		delete (*iter);
 
 	return 0;
+}
+
+```
+
+## **2) Server**
+
+**Main.cpp**
+```c++
+#pragma comment(lib, "ws2_32")
+#include <ws2tcpip.h>
+#include <iostream>
+#include <stdarg.h>
+
+#include "List.h"
+#include "Message.h"
+#include "Player.h"
+#include "Network.h"
+
+int main(int argc, char* argv[])
+{
+	// Initialize
+	int err;
+	int bindRet;
+	int ioctRet;
+	int listenRet;
+	int selectRet;
+
+	WSADATA wsa;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+		return 1;
+
+	// Create Socket
+	listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (listen_sock == INVALID_SOCKET)
+	{
+		err = ::WSAGetLastError();
+		SetCursor();
+		printf("Error! Line %d: %d\n", __LINE__, err);
+		return 0;
+	}
+
+	// Bind
+	SOCKADDR_IN serveraddr;
+	ZeroMemory(&serveraddr, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	InetPton(AF_INET, L"0.0.0.0", &serveraddr.sin_addr);
+	serveraddr.sin_port = htons(SERVERPORT);
+
+	bindRet = bind(listen_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+	if (bindRet == SOCKET_ERROR)
+	{
+		err = ::WSAGetLastError();
+		SetCursor();
+		printf("Error! Line %d: %d\n", __LINE__, err);
+		return 0;
+	}
+
+	// Listen
+	listenRet = listen(listen_sock, SOMAXCONN);
+	if (listenRet == SOCKET_ERROR)
+	{
+		err = ::WSAGetLastError();
+		SetCursor();
+		printf("Error! Line %d: %d\n", __LINE__, err);
+		return 0;
+	}
+
+	// Set Non-Blocking Mode
+	u_long on = 1;
+	ioctRet = ioctlsocket(listen_sock, FIONBIO, &on);
+	if (ioctRet == SOCKET_ERROR)
+	{
+		err = ::WSAGetLastError();
+		SetCursor();
+		printf("Error! Line %d: %d\n", __LINE__, err);
+		return 0;
+	}
+
+	FD_SET rset;
+	FD_SET wset;
+
+
+	CONSOLE_CURSOR_INFO stConsoleCursor;
+	stConsoleCursor.bVisible = FALSE;
+	stConsoleCursor.dwSize = 1;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorInfo(hConsole, &stConsoleCursor);
+	char screenBuffer[YMAX][XMAX] = { ' ', };
+
+	printf("Setting Complete!\n");
+	while (1)
+	{
+		// Network ============================================
+		FD_ZERO(&rset);
+		FD_ZERO(&wset);
+		FD_SET(listen_sock, &rset);
+		for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+		{
+			FD_SET((*i)->sock, &rset);
+			if((*i)->sendBuf.GetUseSize() > 0)
+				FD_SET((*i)->sock, &wset);
+		}
+
+		// Select 
+		selectRet = select(0, &rset, &wset, NULL, NULL);
+		if (selectRet == SOCKET_ERROR)
+		{
+			err = ::WSAGetLastError();
+			SetCursor();
+			printf("Error! Line %d: %d\n", __LINE__, err);
+			break;
+		}
+		else if (selectRet > 0)
+		{
+			for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+			{
+				if (FD_ISSET((*i)->sock, &wset) && (*i)->alive)
+					SendProc((*i));
+			}
+
+			if (FD_ISSET(listen_sock, &rset))
+				AcceptProc();
+
+			for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+			{
+				if (FD_ISSET((*i)->sock, &rset) && (*i)->alive)
+				{
+					RecvProc((*i));
+					SetBuffer((*i));
+				}
+			}
+
+			if (deleted = true)
+				DeleteDeadPlayers();
+		}
+
+		// Render ==============================================
+
+		// Buffer Clear
+		memset(screenBuffer, ' ', YMAX * XMAX);
+		for (int i = 0; i < YMAX; i++)
+		{
+			screenBuffer[i][XMAX - 1] = '\0';
+		}
+
+		// Set Buffer
+		for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+		{
+			if ((*i)->alive)
+			{
+				if ((*i)->X > XMAX - 2) (*i)->X = XMAX - 2;
+				else if ((*i)->X <= 0) (*i)->X = 0;
+				if ((*i)->Y > YMAX - 1) (*i)->Y = YMAX - 1;
+				else if ((*i)->Y <= 0) (*i)->Y = 0;
+
+				screenBuffer[(*i)->Y][(*i)->X] = '*';
+			}
+		}
+		sprintf_s(screenBuffer[0], "Connect Client: %02d\n", gPlayerList.size());
+
+		// Buffer Flip
+		for (int i = 0; i < YMAX; i++)
+		{
+			stCoord.X = 0;
+			stCoord.Y = i;
+			SetConsoleCursorPosition(hConsole, stCoord);
+			printf(screenBuffer[i]);
+		}
+	}
+
+	closesocket(listen_sock);
+	WSACleanup();
+	return 0;
+}
+
+```
+
+**Network.cpp**
+```c++
+#include "Network.h"
+#include "Message.h"
+#include "RingBuffer.h"
+
+COORD stCoord;
+HANDLE hConsole;
+SOCKET listen_sock;
+
+inline void SetCursor()
+{
+	stCoord.X = 0;
+	stCoord.Y = YMAX;
+	SetConsoleCursorPosition(hConsole, stCoord);
+}
+
+void AcceptProc()
+{	
+	SOCKADDR_IN clientaddr;
+	int addrlen = sizeof(clientaddr);
+	Player* newPlayer = new Player;
+
+	newPlayer->sock = accept(listen_sock, (SOCKADDR*)&clientaddr, &addrlen);
+	if (newPlayer->sock == INVALID_SOCKET)
+	{
+		int err = ::WSAGetLastError();
+		SetCursor();
+		printf("Error! Line %d: %d\n", __LINE__, err);
+	}
+
+	newPlayer->alive = true;
+	newPlayer->ID = gIDGenerator.AllocID();
+	gPlayerList.push_back(newPlayer);
+
+	// Send <Allocate ID Message> to New Player
+	MSG_ID MsgID;
+	MsgID.ID = newPlayer->ID;
+	SendUnicast((char*)&MsgID, newPlayer);
+
+	// Send <Create New Player Message> to All Player
+	MSG_CREATE MsgCreateNew;
+	MsgCreateNew.ID = newPlayer->ID;
+	MsgCreateNew.X = newPlayer->X;
+	MsgCreateNew.Y = newPlayer->Y;
+	SendBroadcast((char*)&MsgCreateNew, newPlayer);
+
+	// Send <Create All Players Message> to New Player
+	MSG_CREATE MsgCreateAll;
+	for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+	{
+		MsgCreateAll.ID = (*i)->ID;
+		MsgCreateAll.X = (*i)->X;
+		MsgCreateAll.Y = (*i)->Y;
+		SendUnicast((char*)&MsgCreateAll, newPlayer);
+	}
+}
+
+void RecvProc(Player* player)
+{
+	char recvBuf[MAX_BUF_SIZE] = { '\0', };
+	int recvRet = recv(player->sock, recvBuf, MAX_BUF_SIZE, 0);
+	if (recvRet == SOCKET_ERROR)
+	{
+		int err = WSAGetLastError();
+		if (err != WSAEWOULDBLOCK)
+		{
+			SetCursor();
+			printf("Error! Line %d: %d\n", __LINE__, err);
+			Disconnect(player);
+			return;
+		}
+	}
+	else if (recvRet == 0)
+	{
+		Disconnect(player);
+		return;
+	}
+
+	int enqueueSize = player->recvBuf.Enqueue(recvBuf, recvRet);
+	if (enqueueSize != recvRet)
+	{
+		SetCursor();
+		printf("Error! Line %d: recv buffer enqueue\n", __LINE__);
+		Disconnect(player);
+		return;
+	}
+	
+}
+
+void SetBuffer(Player* player)
+{
+	while (player->recvBuf.GetUseSize() >= MSGSIZE)
+	{
+		char msgBuf[MSGSIZE];
+		int dequeueRet = player->recvBuf.Dequeue(msgBuf, MSGSIZE);
+		if (dequeueRet != MSGSIZE)
+		{
+			SetCursor();
+			printf("Error! Line %d: recv buffer dequeue\n", __LINE__);
+			Disconnect(player);
+			return;
+		}
+
+		MSG_TYPE* pType = (MSG_TYPE*)msgBuf;
+
+		switch (*pType)
+		{
+		case TYPE_MOVE:
+		{
+			MSG_MOVE* pMsg = (MSG_MOVE*)msgBuf;
+			if (player->ID == pMsg->ID)
+			{
+				player->X = pMsg->X;
+				player->Y = pMsg->Y;
+				SendBroadcast((char*)pMsg, player);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+}
+
+void SendProc(Player* player)
+{
+	int msgBufSize = player->sendBuf.GetUseSize();
+	if (msgBufSize <= 0)
+	{
+		return;
+	}
+	else if (msgBufSize % MSGSIZE != 0)
+	{
+		int remains = msgBufSize % MSGSIZE;
+		msgBufSize -= remains;
+	}
+
+	char msgBuf[MAX_BUF_SIZE];
+	int dequeueRet = player->sendBuf.Dequeue(msgBuf, msgBufSize);
+	if (dequeueRet != msgBufSize)
+	{
+		SetCursor();
+		printf("Error! Line %d: recv buffer dequeue\n", __LINE__);
+		Disconnect(player);
+		return;
+	}
+
+	int sendRet = send(player->sock, msgBuf, msgBufSize, 0);
+	if (sendRet == SOCKET_ERROR)
+	{
+		int err = WSAGetLastError();
+		if (err != WSAEWOULDBLOCK)
+		{
+			SetCursor();
+			printf("Error! Line %d: %d\n", __LINE__, err);
+			Disconnect(player);
+			return;
+		}
+	}
+}
+
+void SendUnicast(char* msg, Player* player)
+{
+	int enqueueRet = player->sendBuf.Enqueue(msg, MSGSIZE);
+	if (enqueueRet != MSGSIZE)
+	{
+		SetCursor();
+		printf("Error! Line %d: send buffer enqueue error\n", __LINE__);
+		Disconnect(player);		
+	}	
+}
+
+void SendBroadcast(char* msg, Player* expPlayer)
+{
+	int enqueueRet;
+	if (expPlayer == nullptr)
+	{
+		for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+		{
+			if ((*i)->alive)
+			{
+				enqueueRet = (*i)->sendBuf.Enqueue(msg, MSGSIZE);
+				if (enqueueRet != MSGSIZE)
+				{
+					SetCursor();
+					printf("Error! Line %d: send buffer enqueue error\n", __LINE__);
+					Disconnect(*i);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end(); i++)
+		{
+			if (expPlayer->ID != (*i)->ID && (*i)->alive)
+			{
+				enqueueRet = (*i)->sendBuf.Enqueue(msg, MSGSIZE);
+				if (enqueueRet != MSGSIZE)
+				{
+					SetCursor();
+					printf("Error! Line %d: send buffer enqueue error\n", __LINE__);
+					Disconnect(*i);
+				}
+			}
+		}
+	}
+	
+}
+
+void Disconnect(Player* player)
+{
+	MSG_DELETE MsgDelete;
+	MsgDelete.ID = player->ID;
+	player->alive = false;
+	SendBroadcast((char*)&MsgDelete);
+	deleted = true;
+}
+
+void DeleteDeadPlayers()
+{
+	for (CList<Player*>::iterator i = gPlayerList.begin(); i != gPlayerList.end();)
+	{
+		if (!(*i)->alive)
+		{
+			Player* player = *i;
+			i = gPlayerList.erase(i);
+			closesocket(player->sock);
+			delete(player);
+		}
+		else
+		{
+			i++;
+		}
+	}
+	deleted = false;
 }
 
 ```

@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 12) Network - socket opt, select
+title: Procademy, Q2, 12) Network - Socket opt, Select model
 categories: ProcademyReview
 tags: 
 toc: true
@@ -108,5 +108,34 @@ n에는 검사 대상이 되는 파일 디스크럽트의 수를 전달한다. f
 ## **4) FD Macro**
 
 FD_SET 내부를 확인해보면 fd_count 만큼 반복문을 돌려서 중복이 나타나면 break 하고 없을 경우 차례대로 넣는 것을 볼 수 있다. 특정 소켓을 지우는 FD_CLR 역시 중간에 빈 공간이 없어야 하므로 단순하게 지운 곳에서부터 하나씩 앞으로 복사한다. FD_ISSET 역시 동일하게 반복문으로 확인한다. 
+
+## **5) send - recv 구조**
+
+**구조 1**
+```c++
+while(1)
+{
+ 	Network - recv, send
+	Logic 
+	Frame Wait
+}
+```
+
+**구조 2**
+```c++
+while(1)
+{
+ 	Network - recv
+	Logic 
+    Network - send
+	Frame Wait 
+}
+```
+
+구조 2의 경우 select가 두번 호출되므로 성능 낭비가 생기는 대신 더 좋은 응답성을 보일 수 있다. 
+
+게임에서 로직은 수신부에서 처리할 수 있는 로직과 모든 데이터를 recv 한 이후에 처리할 수 있는 로직으로 나뉜다. 날아오는 무기를 보고 피할 수 있는 컨텐츠라면 recv 이후에 오는 Logic 단계에서만 충돌 처리를 계산할 수 있을 것이다. 
+
+이때 더 빠른 반응성을 보이고 싶다면 send를 recv 받고 바로 처리하여 send 하는 것과, Logic 처리 이후에 send 하는 것으로 나누어서 처리할 수도 있다. 배틀 그라운드가 이런 방식을 채택하고 있다. 그러나 사용자에게 유의미하게 체감되는 차이는 아니다. 또, 이 경우 send를 두번 하기 때문에 트래픽과 서버 부하가 늘어난다. 서버에 여유가 있다면 괜찮지만 부담이 큰 상태라면 적합하지 않은 방식이 될 수 있다. 
 
 

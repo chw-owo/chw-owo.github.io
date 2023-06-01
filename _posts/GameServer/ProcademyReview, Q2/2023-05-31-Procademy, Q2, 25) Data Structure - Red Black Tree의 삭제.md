@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2,
+title: Procademy, Q2, 25) Data Structure - Red Black Tree의 삭제
 categories: ProcademyReview
 tags: 
 toc: true

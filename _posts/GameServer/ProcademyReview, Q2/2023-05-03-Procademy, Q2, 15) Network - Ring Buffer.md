@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2, 15) Network - Ring Buffer, Multi Thread
+title: Procademy, Q2, 15) Network - Ring Buffer
 categories: ProcademyReview
 tags: 
 toc: true
@@ -63,7 +63,4 @@ SendRingBuffer.MoveFront(sendRet);
 
 예제 코드는 위와 같다. Peek을 통해 일단 버퍼 안의 값을 보존한 채 전송한 후, send의 return 값만큼 MoveFront를 호출하여 전송에 성공한 만큼 front 값을 바꾼다.
 
-<br/>
-
-# **2. Ring Buffer와 Multi Thread**
 

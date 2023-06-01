@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q2,
+title: Procademy, Q2, 24) Data Structure - Red Black Tree의 구조와 삽입
 categories: ProcademyReview
 tags: 
 toc: true
@@ -13,5 +13,4 @@ toc_sticky: true
 <br/>
 
 # **2.**
-
 

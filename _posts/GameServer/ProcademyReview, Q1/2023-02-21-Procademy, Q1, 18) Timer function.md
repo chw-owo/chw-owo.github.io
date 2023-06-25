@@ -83,8 +83,8 @@ printf(“%d”, …);
 LARGE_INTEGER Start;
 LARGE_INTEGER End;
 LARGE_INTEGER Freq;
-QueryPerformanceFrequency(&Freq);	// 1초의 진동주기
 
+QueryPerformanceFrequency(&Freq);	// 1초의 진동주기
 QueryPerformanceCounter(&Start);
 Sleep(1000);
 QueryPerformanceCounter(&End);
@@ -98,15 +98,15 @@ QueryPerformanceFrequency, QueryPerformanceCounter는 clock을 사용하되, rdt
 # **6. Chrono**
 
 ```c++
-    chrono::system_clock::time_point start 
-                                    = chrono::system_clock::now();
+chrono::system_clock::time_point start 
+                                = chrono::system_clock::now();
 
-    for(;;)
-    {
-        // TO-Do
-    }
+for(;;)
+{
+    // TO-Do
+}
 
-    chrono::duration<double>sec = std::chrono::system_clock::now() - start;
+chrono::duration<double>sec = std::chrono::system_clock::now() - start;
 ```
 
 chrono는 C++11에서 추가되어 C 언어 차원에서 제공하는 함수로, 내부적으로 보면 OS에서 제공하는 clock 관련 함수를 랩핑한 것이다. 
@@ -125,7 +125,7 @@ CPU가 명령어를 처리하다가 Interrupt가 발생하면 해당 Interrupt�
 
 Q. QueryPerformance 함수를 두고 GetTickCount를 사용해야 하는 상황이 있나요?
 
-A. 고해상도 타이머가 필요없는 상황이라면 GetTickCount64 쪽이 더 가볍고 성능이 조금 더 좋다. 단순한 컨텐츠 로직을 짠다면 GetTickCount64로도 충분하다. 하지만 요즘은 정확도를 위해 웬만해서는 QueryPerformance 함수를 사용하는 경우가 많다. 
+A. 고해상도 타이머가 필요없는 상황이라면 GetTickCount64 쪽이 더 가볍고 성능이 조금 더 좋다. 단순한 컨텐츠 로직을 짠다면 GetTickCount64로도 충분하다. 하지만 요즘은 정확도를 위해 QueryPerformance 함수를 사용하는 경우가 많다. 
 
 <br/>
 

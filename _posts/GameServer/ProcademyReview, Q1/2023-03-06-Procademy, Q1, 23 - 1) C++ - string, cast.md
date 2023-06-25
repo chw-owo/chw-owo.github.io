@@ -26,7 +26,7 @@ C에서의 casting은 컴파일 에러를 피하는 것 외에는 아무 기능�
 class Car;
 class Truck: public Car;
 
-Car* c1 = new Truck();
+Car* c1 = new Car();
 Truck* t1 = (Truck* ) c1;
 ```
 위 캐스팅은 실수가 분명하지만 컴파일러에서 에러를 내지 않는다. 이후 t1을 이용해서 Truck에만 있는 멤버에 접근할 경우 잘못된 메모리 접근으로 큰 문제가 생길 수 있다. 

@@ -13,7 +13,7 @@ toc_sticky: true
 ```c++
 p = (char*)VirtualAlloc((VOID*)0x00a00000, 4096 * 2, MEM_COMMIT, PAGE_READWRITE);
 ```
-위 코드는 우연히 0x00a00000가 RESERVE 혹은 COMMIT이였던 경우가 아니라면 실패하며, VirtualAlloc은 실패할 경우 null pointer를 반환한다. 왜냐면 RESERVE가 되어있지 않은 곳을 COMMIT 할 순 없기 때문이다. 우연히 성공하더라도 의도된 공간이 아니기 때문에 위와 같은 사용은 잘못되었다고 볼 수 있다. 
+위 코드는 우연히 0x00a00000가 RESERVE 혹은 COMMIT이였던 경우가 아니라면 실패하며, VirtualAlloc은 실패할 경우 null pointer를 반환한다. 왜냐면 RESERVE가 되지 않은 곳을 COMMIT 할 순 없기 때문이다. 우연히 성공하더라도 의도된 공간이 아니기 때문에 위와 같은 사용은 잘못되었다고 볼 수 있다. 
 
 ```c++
 p = (char*)VirtualAlloc(NULL,, 4096 * 2, MEM_COMMIT, PAGE_READWRITE);
@@ -35,7 +35,7 @@ p2 = (char*)VirtualAlloc(p + 4096 * 2, 4096, MEM_COMMIT, PAGE_READWRITE);
 위와 같은 이유로 이 코드들은 둘 다 실패한다.
 
 ```c++
-p = (char*)VirtualAlloc(NULL,, 4096 * 2, MEM_COMMIT, PAGE_READWRITE);
+p = (char*)VirtualAlloc(NULL, 4096 * 2, MEM_COMMIT, PAGE_READWRITE);
 ```
 이런 의미에서는 이 코드도 잘못된 코드라고 볼 수 있다. 64KB - (4096 * 2) 의 공간을 모두 낭비하게 되기 때문이다. 한번 저렇게 잡고 나면 해당 주소로 접근하여 예약 크기를 변경할 수도 없다. 크기를 변경하고 싶다면 RELEASE 한 후 다시 RESERVE - COMMIT을 해야 한다. 
 
@@ -52,7 +52,7 @@ bResult = VirtualFree(p, 0, MEM_RELEASE);
 ```
 이렇게 해야만 해제할 수 있다. 참고로 DECOMMIT 플래그도 있는데 이는 COMMIT을 RESERVE로 돌리는거지 FREE가 되는 게 아니다. RELEASE를 해야만 FREE가 된다.
 
-일반적인 사용법은 아니지만 임의로 메모리 속성을 지정할 때 이 함수를 사용할 수 있다. code 영역은 기본적으로 READONLY지만 VirtualAlloc을 통해 WRITE로 수정할 수도 있어요. 접근하는 순간 크래쉬를 내고 싶은 영역이 있다면 꼭 필요한 순간에만 해제하고 평소엔 PAGE_NOACCESS로 관리할 수도 있다. 
+일반적인 사용법은 아니지만 임의로 메모리 속성을 지정할 때 이 함수를 사용할 수 있다. code 영역은 기본적으로 READONLY지만 VirtualAlloc을 통해 WRITE로 수정할 수 있다. 접근하는 순간 크래쉬를 내고 싶은 영역이 있다면 꼭 필요한 순간에만 해제하고 평소엔 PAGE_NOACCESS로 두는 방식으로 관리할 수도 있다. 
 
 VMMap에서 프로세스를 살펴보면 메모리 영역 별 속성을 보여주는데, VirtualAlloc한 메모리는 스택도 힙도 아닌 Private Data로 속성이 정해진다. code, data, stack, heap 으로 나눈 메모리 영역은 우리가 필요로 하는 영역을 분류한 것뿐이지 메모리가 이 4가지로만 나뉘는 것은 아니다. OS가 알아서 저 네개로 분류되지 않는 메모리에 올리는 경우도 있다. 
 

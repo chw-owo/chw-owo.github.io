@@ -71,7 +71,7 @@ typedef struct sockaddr_in {
     u_short	sin_port;
     u_short	sin_addr;
 	char 	sin_zero[8];
-} SOCKADDR;
+} SOCKADDR_IN;
 ```
 
 sin_zero[8]는 규격 맞추려고 넣은 변수이다. 최근에는 16byte를 초과하는 새로운 주소 체계들이 등장했으나, address의 family를 통해 계속 이전의 구조체로 소통하고 있다. 2byte의 family가 앞에 나온다는 건 어떤 주소 체계든지 동일하며, IPv6는 위 구조체 대신 sockaddr_in6을 사용한다. 

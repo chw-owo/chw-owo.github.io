@@ -10,9 +10,18 @@ toc_sticky: true
 
 # **1. WSAAsyncSelect 특징**
 
-select는 Pooling 방식으로 사용 가능한 set이 있는지 매번 체크해야 하는 반면, AsyncSelect 방식은 사용 가능한 set이 있을 경우 윈도우 메시지를 통해 자동으로 알림을 준다. 단, 윈도우 메시지를 사용하기 때문에 윈도우에서만 사용할 수 있다. 한 윈도우 프로시저에 전달되므로 멀티스레드를 사용하지 않고도 여러 소켓을 처리할 수 있다는 장점이 있다. 반면 AsyncSelect를 처리하는 코드가 WinMain Thread에 종속되기 때문에 멀티스레드를 사용할 수 없다는 단점이 있다. AsyncSelect와 함께 멀티스레드를 사용하려고 하면 경고가 뜬다. 
+select는 사용 가능한 소켓을 매번 풀링 방식으로 체크해야 한다. 반면 AsyncSelect는 사용 가능한 소켓이 생기면 윈도우 메시지로 알려준다. 장점으로는 set을 한번만 등록하면 되고, 소켓 개수 제한이 없으며, 한 윈도우 프로시저에 전달되므로 싱글 스레드로 여러 소켓을 처리할 수 있다. 단점으로는 윈도우에서만 사용할 수 있고, AsyncSelect 코드가 WinMain 스레드에 종속되기 때문에 멀티 스레드를 사용하려고 하면 경고가 뜬다. 
 
-select와 달리 set을 한번만 등록하면 되며 소켓 개수 제한도 없다. wMsg에 지정한 유저 커스텀 메시지를 넣고, lEvent에는 소켓 별로 감시할 이벤트를 지정한다. 이때 FD_CONNECT로 connect를 감시할 수도 있다. select 모델에서는 Non-block socket일 때 connect에서 write set으로 반응이 오면 연결 성공으로, except set에 반응이 오면 예외로 처리했기 때문에 바로 connect를 시도하면 무조건 에러가 떴다. 반면 AsyncSelect에서는 FD_CONNET 이벤트를 통해 connect 신호를 감시할 수 있다.
+```c++
+int WSAAsyncSelect(
+	SOCKET s,
+	HWND hWnd,
+	unsigned int wMsg,
+	long lEvent
+);
+```
+
+wMsg에 지정한 유저 커스텀 메시지를 넣고, lEvent에는 소켓 별로 감시할 이벤트를 지정한다. 이때 FD_CONNECT로 connect를 감시할 수도 있다. select 모델에서는 Non-block socket일 때 connect에서 write set으로 반응이 오면 연결 성공으로, except set에 반응이 오면 예외로 처리했기 때문에 바로 connect를 시도하면 무조건 에러가 떴다. 반면 AsyncSelect에서는 FD_CONNET 이벤트를 통해 connect 신호를 감시할 수 있다.
 
 WSAAsyncSelect 특성 상 Block Socket을 사용하면 아예 프로그램이 멈출 수 있기 때문에 자동으로 논블로킹 모드로 전환된다. listen 소켓은 accept를, accept에서 반환되는 소켓은 read, write를 감시해야 하는데, 이때 반환되는 소켓들은 다른 값으로 설정되어 반환되므로 직접 수정해야 한다. 또, 간혹 Would Block이 뜰 수 있으니 이에 대한 예외 처리가 필요하다. 
 

@@ -1,5 +1,5 @@
 ---
-title: Multithread 09) Detect DeadLock
+title: Multithread 10) Detect DeadLock
 categories: RookissGameServer
 tags: 
 toc: true

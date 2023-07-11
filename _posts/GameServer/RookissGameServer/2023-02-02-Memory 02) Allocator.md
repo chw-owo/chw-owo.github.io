@@ -112,7 +112,7 @@ void StompAllocator::Release(void* ptr)
 
 # **3. Allocator for STL Container**
 
-위에서 만든 Allocator을 STL Container에서도 사용하기 위해서는 별도의 처리가 필요하다. 이를 구현한 예제는 아래와 같다. 
+직접 만든 Allocator을 STL Container 선언 시 지정해서, STL 컨테이너가 해당 Allocator를 사용하도록 만들 수 있다. 이때 template을 사용해야 하고 생성자, 복사생성자, allocate, deallocate 함수를 구현해야 한다. 생성자와 복사생성자는 틀만 있어도 무관하다. 이를 구현한 예제는 아래와 같다. 
 
 **CoreMacro.h**
 ```c++

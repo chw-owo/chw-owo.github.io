@@ -1,5 +1,5 @@
 ---
-title: Multithread 08) Reader-Writer Lock
+title: Multithread 09) Reader-Writer Lock
 categories: RookissGameServer
 tags: 
 toc: true

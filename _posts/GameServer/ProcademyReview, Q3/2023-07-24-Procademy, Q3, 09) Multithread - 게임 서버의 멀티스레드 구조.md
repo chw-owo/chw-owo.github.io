@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q3, 03) Multithread - 기본 사용법
+title: Procademy, Q3, 09) Multithread - 게임 서버의 멀티스레드 구조
 categories: ProcademyReview
 tags: 
 toc: true

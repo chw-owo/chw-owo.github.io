@@ -1,5 +1,5 @@
 ---
-title: Procademy, Q3, 01) Multithread - 개요 (1)
+title: Procademy, Q3, 01) Multithread - Intro (1)
 categories: ProcademyReview
 tags: 
 toc: true
